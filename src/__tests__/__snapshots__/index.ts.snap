@@ -1,0 +1,42 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`babel-blade basic test of functionality: basic test of functionality 1`] = `
+
+function Movie() {
+  const { loading, error, data } = useQuery("Movie");
+  const { Movie } = data;
+
+  return (
+    <div>
+      <div>
+        <h2>{Movie.movie.gorilla}</h2>
+        <p>{Movie.movie.monkey}</p>
+        <p>{Movie.chimp}</p>
+      </div>
+    </div>
+  );
+}
+
+      ↓ ↓ ↓ ↓ ↓ ↓
+
+"use strict";
+
+function Movie() {
+  const {
+    loading,
+    error,
+    data
+  } = useQuery("Movie");
+  const {
+    Movie
+  } = data;
+  return <div>
+      <div>
+        <h2>{Movie.movie.gorilla}</h2>
+        <p>{Movie.movie.monkey}</p>
+        <p>{Movie.chimp}</p>
+      </div>
+    </div>;
+}
+
+`;

@@ -1,0 +1,16 @@
+{
+  "include": ["./src"],
+  "compilerOptions": {
+    "target": "es5",
+    "module": "commonjs",
+    "declaration": false,
+    "sourceMap": false,
+    "lib": ["es2015"],
+    "strict": true,
+    "removeComments": true,
+    "moduleResolution": "node",
+    "forceConsistentCasingInFileNames": true,
+    "noFallthroughCasesInSwitch": true,
+    "esModuleInterop": true
+  }
+}
