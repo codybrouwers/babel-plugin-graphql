@@ -28,6 +28,7 @@ module.exports = {
   rules: {
     "no-unused-vars": "off",
     "no-undef": "off", // TypeScript already warns on undefined variables
+    "no-underscore-dangle": "off",
     "prefer-const": "error",
     "no-return-await": "error",
     eqeqeq: "error",

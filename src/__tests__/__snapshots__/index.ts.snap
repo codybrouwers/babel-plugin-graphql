@@ -3,15 +3,14 @@
 exports[`babel-blade basic test of functionality: basic test of functionality 1`] = `
 
 function Movie() {
-  const { loading, error, data } = useQuery("Movie");
-  const { Movie } = data;
+  const { data } = useQuery("Movie");
 
   return (
     <div>
       <div>
-        <h2>{Movie.movie.gorilla}</h2>
-        <p>{Movie.movie.monkey}</p>
-        <p>{Movie.chimp}</p>
+        <h2>{data.Movie.movie.gorilla}</h2>
+        <p>{data.Movie.movie.monkey}</p>
+        <p>{data.Movie.chimp}</p>
       </div>
     </div>
   );
@@ -19,22 +18,15 @@ function Movie() {
 
       ↓ ↓ ↓ ↓ ↓ ↓
 
-"use strict";
-
 function Movie() {
   const {
-    loading,
-    error,
     data
   } = useQuery("Movie");
-  const {
-    Movie
-  } = data;
   return <div>
       <div>
-        <h2>{Movie.movie.gorilla}</h2>
-        <p>{Movie.movie.monkey}</p>
-        <p>{Movie.chimp}</p>
+        <h2>{data.Movie.movie.gorilla}</h2>
+        <p>{data.Movie.movie.monkey}</p>
+        <p>{data.Movie.chimp}</p>
       </div>
     </div>;
 }

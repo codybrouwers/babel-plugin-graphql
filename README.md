@@ -31,7 +31,7 @@ const MOVIE_QUERY = gql`
 `;
 
 function Movie() {
-  const { loading, error, data } = useQuery("Movie");
+  const { loading, error, data } = useQuery(MOVIE_QUERY);
   const { Movie } = data;
   return (
     <div>
@@ -63,7 +63,7 @@ import gql from "graphql-tag";
 
 MovieName.fragment = gql`
   fragment MovieNameFragment on Movie {
-    id // For cacheing, optional
+    id # For cacheing, optional
     name
   }
 `;
