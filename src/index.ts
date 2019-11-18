@@ -148,25 +148,22 @@ export default function({ types: t }: { types: typeof babelTypes }): PluginObj {
 
         function recursivelyBuildQueryMap(
           queryMap: TQueryBuilderMap,
-          { parentPath }: NodePath<babelTypes.Node>,
-          parentPropertyName?: string
+          { parentPath }: NodePath<babelTypes.Node>
         ): TQueryBuilderMap {
           if (t.isMemberExpression(parentPath.node)) {
             const propertyName = parentPath.node.property.name;
-            if (parentPropertyName && queryMap.has(propertyName)) {
-              const parentMap = queryMap.get(parentPropertyName)?.__fields || new Map();
-              return parentMap.set(propertyName, {
-                __fields: recursivelyBuildQueryMap(
-                  queryMap.get(propertyName)?.__fields || new Map(),
-                  parentPath,
-                  propertyName
-                ),
-              });
+            // console.log({
+            //   propertyName,
+            //   mapHasPropertyName: queryMap.has(propertyName),
+            //   nestedParentPathIsMemberExpression: t.isMemberExpression(parentPath.parentPath.node),
+            // });
+
+            const value: IFieldType = {};
+            if (t.isMemberExpression(parentPath.parentPath.node)) {
+              const propertyMap = queryMap.get(propertyName)?.__fields || new Map();
+              value.__fields = recursivelyBuildQueryMap(propertyMap, parentPath);
             }
-            const propertyMap = queryMap.get(propertyName)?.__fields || new Map();
-            return queryMap.set(propertyName, {
-              __fields: recursivelyBuildQueryMap(propertyMap, parentPath, propertyName),
-            });
+            return queryMap.set(propertyName, value);
           }
           return queryMap;
         }
