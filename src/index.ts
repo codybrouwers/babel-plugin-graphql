@@ -177,22 +177,45 @@ export default function({ types: t }: { types: typeof babelTypes }): PluginObj {
         );
 
         console.log("--queryBuilderMap", queryBuilderMap.get("Movie"));
+        console.log(getFunctionDeclaration(path, t));
       },
-      // Identifier(path) {
-      //   if (path.node.name !== useQueryObject.name) return;
-
-      // console.log(path);
-      // console.log("t.isIdentifier(path, {}))", t.isIdentifier(path));
-      // switch (path) {
-      //   case value:
-      //     break;
-      //   default:
-      //     break;
-      // }
-      // handleCreateRazor(path, t);
-      // },
     },
   };
+}
+
+function buildTypeString(map: TQueryBuilderMap, nestedLevel = 0) {
+  const entries = map.entries();
+  let next = entries.next();
+  let string = "";
+  const indentation = "  ".repeat(nestedLevel);
+  let hasParent = false;
+  console.log({ hasParent, done: next.done, value: next.value });
+  while (!next.done && next.value) {
+    if (next.value[1].__fields) {
+      hasParent = true;
+      string += `\n${indentation}${next.value[0]} {${buildTypeString(
+        next.value[1].__fields,
+        nestedLevel + 1
+      )}`;
+    } else {
+      string += `\n${indentation}${next.value[0]}`;
+    }
+    next = entries.next();
+  }
+  console.log({ hasParent, done: next.done, indentation, nestedLevel });
+  if (next.done && hasParent) {
+    return `${string}\n${indentation}}`;
+  }
+  return string;
+}
+
+function getFunctionDeclaration(
+  path: NodePath<babelTypes.Node>,
+  t: typeof babelTypes
+): NodePath<babelTypes.Node> & babelTypes.FunctionDeclaration {
+  return t.isFunctionDeclaration(path.parentPath)
+    ? path.parentPath
+    : getFunctionDeclaration(path.parentPath, t);
 }
 
 // export function handleCreateRazor(path, types) {
