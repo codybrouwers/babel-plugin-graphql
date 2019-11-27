@@ -78,3 +78,46 @@ function MovieName({ name }) {
   );
 }
 ```
+
+## Mutations
+
+```jsx
+import { useMutation } from "blade/apollo.macro";
+
+function Movie() {
+  const [mutation, { loading, error, data }] = useMutation("CreateMovie");
+  const { Movie } = data;
+
+  return (
+    <div>
+      <h2>{Movie.name}</h2>
+    </div>
+  );
+}
+```
+
+      ↓ ↓ ↓ ↓ ↓ ↓
+
+```jsx
+import gql from "graphql-tag";
+import { useMutation } from "@apollo/react-hooks";
+
+const MOVIE_MUTATION = gql`
+  mutation CreateMovieMutation($name: String!) {
+    CreateMovie(name: $name) {
+      id
+      name
+    }
+  }
+`;
+
+function Movie() {
+  const [mutation, { loading, error, data }] = useMutation(MOVIE_MUTATION);
+  const { Movie } = data;
+  return (
+    <div>
+      <h2>{Movie.name}</h2>
+    </div>
+  );
+}
+```
