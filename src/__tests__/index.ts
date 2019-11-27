@@ -1,7 +1,7 @@
-import { transformSync } from "@babel/core";
 import path from "path";
+import { transformSync } from "@babel/core";
 import pluginTester from "babel-plugin-tester";
-import plugin from "../";
+import plugin from "..";
 
 // const projectRoot = path.join(__dirname, "../../");
 
@@ -40,7 +40,7 @@ import plugin from "../";
 // });
 
 it("handles nested properties", () => {
-  var input = `
+  const input = `
     function Movie() {
       const { data } = useQuery("GetMovie");
 
@@ -48,6 +48,7 @@ it("handles nested properties", () => {
         <div>
           <p>{data.Movie.releaseDate}</p>
           <p>{data.Movie.director.id}</p>
+          <p>{data.Movie.director.name({first: 5})}</p>
           <p>{data.Movie.director.name}</p>
         </div>
       );
@@ -55,6 +56,7 @@ it("handles nested properties", () => {
     `;
   const { code } = transformSync(input, { filename: "./fixtures/basic.js", plugins: [plugin] });
   console.log(code);
+  expect(code).toBeTruthy();
 });
 
 // it("handles arguments", () => {
