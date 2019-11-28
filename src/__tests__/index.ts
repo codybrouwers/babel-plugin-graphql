@@ -73,4 +73,5 @@ it("handles nested properties", () => {
 //     `;
 //   const { code } = transformSync(input, { filename: "./fixtures/basic.js", plugins: [plugin] });
 //   console.log(code);
+//   expect(code).toBeTruthy();
 // });

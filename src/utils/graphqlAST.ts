@@ -18,11 +18,11 @@ import {
 function newFieldNode(
   name: string,
   {
-    selectionSetNode,
+    selectionNodes = [],
     argumentNodes,
     directiveNodes,
   }: {
-    selectionSetNode?: SelectionSetNode;
+    selectionNodes?: SelectionNode[];
     argumentNodes?: ArgumentNode[];
     directiveNodes?: DirectiveNode[];
   } = {}
@@ -30,7 +30,10 @@ function newFieldNode(
   return {
     kind: Kind.FIELD,
     name: { kind: Kind.NAME, value: name },
-    selectionSet: selectionSetNode,
+    selectionSet: {
+      kind: Kind.SELECTION_SET,
+      selections: selectionNodes,
+    },
     arguments: argumentNodes,
     directives: directiveNodes,
   };
