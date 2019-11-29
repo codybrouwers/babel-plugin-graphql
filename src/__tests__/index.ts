@@ -1,77 +1,98 @@
 import path from "path";
-import { transformSync } from "@babel/core";
 import pluginTester from "babel-plugin-tester";
 import plugin from "..";
 
-// const projectRoot = path.join(__dirname, "../../");
+pluginTester({
+  plugin,
+  fixtures: path.join(__dirname, "./fixtures"),
+  tests: [
+    {
+      code: `
+        function Movie() {
+          const { data } = useQuery("GetMovie");
 
-// expect.addSnapshotSerializer({
-//   print(val) {
-//     return val.split(projectRoot).join("<PROJECT_ROOT>/");
-//   },
-//   test(val) {
-//     return typeof val === "string";
-//   },
-// });
+          return (
+            <div>
+              <p>{data.Movie.releaseDate}</p>
+              <p>{data.Movie.director.id}</p>
+              <p>{data.Movie.director.name({first: 5})}</p>
+              <p>{data.Movie.director.name}</p>
+            </div>
+          );
+        }
+      `,
+      output: `
+        const MOVIE_QUERY = gql\`
+          query MovieQuery {
+            GetMovie {
+              Movie {
+                releaseDate
+                director {
+                  id
+                  name(first: 5)
+                }
+              }
+            }
+          }
+        \`;
 
-// const fixture = (filename: string) => ({
-//   fixture: require.resolve(`./fixtures/${filename}`),
-// });
+        function Movie() {
+          const { data } = useQuery("GetMovie");
+          return (
+            <div>
+              <p>{data.Movie.releaseDate}</p>
+              <p>{data.Movie.director.id}</p>
+              <p>
+                {data.Movie.director.name({
+                  first: 5,
+                })}
+              </p>
+              <p>{data.Movie.director.name}</p>
+            </div>
+          );
+        }
+      `,
+    },
+    {
+      code: `
+        function Movie() {
+          const { data } = useQuery("GetMovie");
 
-// pluginTester({
-//   plugin,
-//   snapshot: false,
-//   babelOptions: { filename: __filename },
-//   tests: {
-//     "basic test of functionality": fixture("basic"),
-//     // "exportable query": fixture("exportconstquery"),
-//     // "basic array map works": fixture("arraymap1"),
-//     // "array map destructuring arrow function works": fixture("arraymap2"),
-//     // "array map destructuring normal function works": fixture("arraymap3"),
-//     // "assignments and aliases work": fixture("assignment"),
-//     // "overlapping assignments work": fixture("assignment-overlapping"),
-//     // "destructuring work": fixture("destructuring"),
-//     // "docs: fields": fixture("fields"),
-//     // "docs: args": fixture("arguments"),
-//     // "docs: variables": fixture("queryVariables"),
-//     // "docs: directives": fixture("directives"),
-//     // "injection of fragments": fixture("fragment"),
-//   },
-// });
+          return (
+            <div>
+              <p>{data.Movie.releaseDate({numberArg: 123, stringArg: "abc"}, "@preload")}</p>
+            </div>
+          );
+        }
+      `,
+      output: `
+        const MOVIE_QUERY = gql\`
+          query MovieQuery {
+            GetMovie {
+              Movie {
+                releaseDate(numberArg: 123, stringArg: "abc") @preload
+              }
+            }
+          }
+        \`;
 
-it("handles nested properties", () => {
-  const input = `
-    function Movie() {
-      const { data } = useQuery("GetMovie");
-
-      return (
-        <div>
-          <p>{data.Movie.releaseDate}</p>
-          <p>{data.Movie.director.id}</p>
-          <p>{data.Movie.director.name({first: 5})}</p>
-          <p>{data.Movie.director.name}</p>
-        </div>
-      );
-    }
-    `;
-  const { code } = transformSync(input, { filename: "./fixtures/basic.js", plugins: [plugin] });
-  console.log(code);
-  expect(code).toBeTruthy();
+        function Movie() {
+          const { data } = useQuery("GetMovie");
+          return (
+            <div>
+              <p>
+                {data.Movie.releaseDate(
+                  {
+                    numberArg: 123,
+                    stringArg: "abc",
+                  },
+                  "@preload"
+                )}
+              </p>
+            </div>
+          );
+        }
+      `,
+    },
+  ],
 });
-
-// it("handles arguments", () => {
-//   var input = `
-//     function Movie() {
-//       const { data } = useQuery("GetMovie");
-
-//       return (
-//         <div>
-//           <p>{data.Movie.releaseDate({numberArg: 123, stringArg: "abc"}, "@preload")}</p>
-//         </div>
-//       );
-//     }
-//     `;
-//   const { code } = transformSync(input, { filename: "./fixtures/basic.js", plugins: [plugin] });
-//   console.log(code);
-//   expect(code).toBeTruthy();
-// });
