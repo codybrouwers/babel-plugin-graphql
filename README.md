@@ -94,6 +94,56 @@ function MovieName({ id, name }) {
 }
 ```
 
+## Query with a fragment
+
+```jsx
+import { useQuery } from "blade/apollo.macro";
+
+function MovieComponent() {
+  const { loading, error, data } = useQuery("GetMovie");
+
+  return (
+    <div>
+      <h2>{data.id}</h2>
+      <h2>{data.director.name}</h2>
+      <MovieName />
+    </div>
+  );
+}
+```
+
+      ↓ ↓ ↓ ↓ ↓ ↓
+
+```jsx
+import gql from "graphql-tag";
+import { useQuery } from "@apollo/react-hooks";
+
+const _MOVIE_COMPONENT_GETMOVIE_QUERY = gql`
+  query MovieQuery($releaseDateFormatted: Boolean) {
+    GetMovie {
+      id
+      director {
+        name
+      }
+      ...MovieNameFragment
+    }
+  }
+  ${MovieName.fragment}
+`;
+
+function MovieComponent() {
+  const { loading, error, data } = useQuery(_MOVIE_COMPONENT_GETMOVIE_QUERY);
+
+  return (
+    <div>
+      <h2>{data.id}</h2>
+      <h2>{data.director.name}</h2>
+      <MovieName id={data.id} name={data.name} />
+    </div>
+  );
+}
+```
+
 ## Mutations
 
 ```jsx
@@ -138,4 +188,8 @@ function EditMovieComponent() {
     </div>
   );
 }
+```
+
+```
+
 ```
