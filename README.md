@@ -149,7 +149,7 @@ function MovieComponent() {
 ```jsx
 import { useMutation } from "blade/apollo.macro";
 
-function EditMovieComponent() {
+function MovieForm() {
   const [mutation, { loading, error, data }] = useMutation("EditMovie");
 
   return (
@@ -167,7 +167,7 @@ function EditMovieComponent() {
 import gql from "graphql-tag";
 import { useMutation } from "@apollo/react-hooks";
 
-const EDIT_MOVIE_COMPONENT_EDIT_MOVIE_MUTATION = gql`
+const MOVIE_FORM_EDIT_MOVIE_MUTATION = gql`
   mutation EditMovieMutation($name: String!) {
     EditMovie(name: $name) {
       id
@@ -176,10 +176,8 @@ const EDIT_MOVIE_COMPONENT_EDIT_MOVIE_MUTATION = gql`
   }
 `;
 
-function EditMovieComponent() {
-  const [mutation, { loading, error, data }] = useMutation(
-    EDIT_MOVIE_COMPONENT_EDIT_MOVIE_MUTATION
-  );
+function MovieForm() {
+  const [mutation, { loading, error, data }] = useMutation(MOVIE_FORM_EDIT_MOVIE_MUTATION);
 
   return (
     <div>
