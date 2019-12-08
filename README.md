@@ -3,13 +3,15 @@
 ```jsx
 import { useQuery } from "blade/apollo.macro";
 
-function Movie() {
-  const { loading, error, data } = useQuery("Movie");
-  const { Movie } = data;
+function MovieComponent() {
+  const { loading, error, data } = useQuery("GetMovie");
 
   return (
     <div>
-      <h2>{Movie.name}</h2>
+      <h2>{data.id}</h2>
+      <h2>{data.name}</h2>
+      <h2>{data.releaseDate({ formatted: true })}</h2>
+      <h2>{data.director.name}</h2>
     </div>
   );
 }
@@ -21,21 +23,32 @@ function Movie() {
 import gql from "graphql-tag";
 import { useQuery } from "@apollo/react-hooks";
 
-const MOVIE_QUERY = gql`
-  query MovieQuery {
-    Movie {
+const _MOVIE_COMPONENT_GETMOVIE_QUERY = gql`
+  query MovieQuery($releaseDateFormatted: Boolean) {
+    GetMovie {
       id
       name
+      releaseDate(formatted: $releaseDateFormatted)
+      director {
+        name
+      }
     }
   }
 `;
 
-function Movie() {
-  const { loading, error, data } = useQuery(MOVIE_QUERY);
-  const { Movie } = data;
+function MovieComponent() {
+  const { loading, error, data } = useQuery(_MOVIE_COMPONENT_GETMOVIE_QUERY, {
+    variables: {
+      releaseDateFormatted: true,
+    },
+  });
+
   return (
     <div>
-      <h2>{Movie.name}</h2>
+      <h2>{data.id}</h2>
+      <h2>{data.name}</h2>
+      <h2>{data.releaseDate}</h2>
+      <h2>{data.director.name}</h2>
     </div>
   );
 }
@@ -47,9 +60,10 @@ function Movie() {
 import { useFragment } from "blade/apollo.macro";
 
 function MovieName() {
-  const { name } = useFragment("Movie");
+  const { id, name } = useFragment("Movie");
   return (
     <div>
+      <h2>{id}</h2>
       <h2>{name}</h2>
     </div>
   );
@@ -63,15 +77,16 @@ import gql from "graphql-tag";
 
 MovieName.fragment = gql`
   fragment MovieNameFragment on Movie {
-    id # For cacheing, optional
+    id
     name
   }
 `;
 
-function MovieName({ name }) {
+function MovieName({ id, name }) {
   return (
     <div>
       <div>
+        <h2>{id}</h2>
         <h2>{name}</h2>
       </div>
     </div>
@@ -84,13 +99,13 @@ function MovieName({ name }) {
 ```jsx
 import { useMutation } from "blade/apollo.macro";
 
-function Movie() {
-  const [mutation, { loading, error, data }] = useMutation("CreateMovie");
-  const { Movie } = data;
+function EditMovieComponent() {
+  const [mutation, { loading, error, data }] = useMutation("EditMovie");
 
   return (
     <div>
-      <h2>{Movie.name}</h2>
+      <h2>{data.name}</h2>
+      <button onClick={() => mutation({ variables: { name: "NewName" } })} />
     </div>
   );
 }
@@ -102,21 +117,24 @@ function Movie() {
 import gql from "graphql-tag";
 import { useMutation } from "@apollo/react-hooks";
 
-const MOVIE_MUTATION = gql`
-  mutation CreateMovieMutation($name: String!) {
-    CreateMovie(name: $name) {
+const EDIT_MOVIE_COMPONENT_EDIT_MOVIE_MUTATION = gql`
+  mutation EditMovieMutation($name: String!) {
+    EditMovie(name: $name) {
       id
       name
     }
   }
 `;
 
-function Movie() {
-  const [mutation, { loading, error, data }] = useMutation(MOVIE_MUTATION);
-  const { Movie } = data;
+function EditMovieComponent() {
+  const [mutation, { loading, error, data }] = useMutation(
+    EDIT_MOVIE_COMPONENT_EDIT_MOVIE_MUTATION
+  );
+
   return (
     <div>
-      <h2>{Movie.name}</h2>
+      <h2>{data.name}</h2>
+      <button onClick={() => mutation({ variables: { name: "NewName" } })} />
     </div>
   );
 }
