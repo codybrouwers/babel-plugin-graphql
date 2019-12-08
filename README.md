@@ -24,11 +24,11 @@ import gql from "graphql-tag";
 import { useQuery } from "@apollo/react-hooks";
 
 const _MOVIE_COMPONENT_GETMOVIE_QUERY = gql`
-  query MovieQuery($releaseDateFormatted: Boolean) {
+  query MovieQuery($releaseDate_formatted: Boolean) {
     GetMovie {
       id
       name
-      releaseDate(formatted: $releaseDateFormatted)
+      releaseDate(formatted: $releaseDate_formatted)
       director {
         name
       }
@@ -39,7 +39,7 @@ const _MOVIE_COMPONENT_GETMOVIE_QUERY = gql`
 function MovieComponent() {
   const { loading, error, data } = useQuery(_MOVIE_COMPONENT_GETMOVIE_QUERY, {
     variables: {
-      releaseDateFormatted: true,
+      releaseDate_formatted: true,
     },
   });
 
@@ -119,7 +119,7 @@ import gql from "graphql-tag";
 import { useQuery } from "@apollo/react-hooks";
 
 const _MOVIE_COMPONENT_GETMOVIE_QUERY = gql`
-  query MovieQuery($releaseDateFormatted: Boolean) {
+  query MovieQuery {
     GetMovie {
       id
       director {
