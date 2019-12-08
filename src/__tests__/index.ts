@@ -10,7 +10,6 @@ pluginTester({
       code: `
         function Movie() {
           const { data } = useQuery("GetMovie");
-
           return (
             <div>
               <p>{data.Movie.releaseDate}</p>
@@ -22,8 +21,8 @@ pluginTester({
         }
       `,
       output: `
-        const MOVIE_QUERY = gql\`
-          query MovieQuery {
+        const _MOVIE__GETMOVIEQUERY = gql\`
+          query Movie__GetMovieQuery {
             GetMovie {
               Movie {
                 releaseDate
@@ -37,7 +36,7 @@ pluginTester({
         \`;
 
         function Movie() {
-          const { data } = useQuery("GetMovie");
+          const { data } = useQuery(_MOVIE__GETMOVIEQUERY);
           return (
             <div>
               <p>{data.Movie.releaseDate}</p>
@@ -57,7 +56,6 @@ pluginTester({
       code: `
         function Movie() {
           const { data } = useQuery("GetMovie");
-
           return (
             <div>
               <p>{data.Movie.releaseDate({numberArg: 123, stringArg: "abc"}, "@preload")}</p>
@@ -66,8 +64,8 @@ pluginTester({
         }
       `,
       output: `
-        const MOVIE_QUERY = gql\`
-          query MovieQuery {
+        const _MOVIE__GETMOVIEQUERY = gql\`
+          query Movie__GetMovieQuery {
             GetMovie {
               Movie {
                 releaseDate(numberArg: 123, stringArg: "abc") @preload
@@ -77,7 +75,7 @@ pluginTester({
         \`;
 
         function Movie() {
-          const { data } = useQuery("GetMovie");
+          const { data } = useQuery(_MOVIE__GETMOVIEQUERY);
           return (
             <div>
               <p>

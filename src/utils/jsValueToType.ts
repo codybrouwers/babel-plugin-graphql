@@ -16,7 +16,9 @@ import {
 
 // == Exports ==============================================================
 
-// TODO: Handle more types
+/**
+ * @todo Handle more types
+ */
 export function jsValueToType(value: Node): ValueNode | null {
   switch (value.type) {
     case "StringLiteral":

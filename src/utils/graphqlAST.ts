@@ -50,7 +50,9 @@ function newArgumentNode(name: string, value: ValueNode): ArgumentNode {
   };
 }
 
-// TODO: Directive arguments
+/**
+ * @todo Directive arguments
+ */
 function newDirectiveNode(name: string): DirectiveNode {
   return {
     kind: Kind.DIRECTIVE,
@@ -63,7 +65,10 @@ function newSelectionSet(selections: FieldNode[] = []) {
   return { kind: Kind.SELECTION_SET, selections };
 }
 
-// TODO: VariableDefinitions & directives
+/**
+ *
+ * @todo VariableDefinitions & directives
+ */
 function newDocumentNode(queryName: string, querySelections: SelectionNode[]): DocumentNode {
   return {
     kind: Kind.DOCUMENT,

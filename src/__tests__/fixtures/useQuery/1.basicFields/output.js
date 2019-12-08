@@ -1,5 +1,5 @@
-const MOVIE_QUERY = gql`
-  query MovieQuery {
+const _MOVIE__GETMOVIEQUERY = gql`
+  query Movie__GetMovieQuery {
     GetMovie {
       id
       name
@@ -9,7 +9,7 @@ const MOVIE_QUERY = gql`
 `;
 
 function Movie() {
-  const { data } = useQuery("GetMovie");
+  const { data } = useQuery(_MOVIE__GETMOVIEQUERY);
   return (
     <div>
       <div>

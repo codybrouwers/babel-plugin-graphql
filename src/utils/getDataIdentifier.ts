@@ -10,12 +10,26 @@ const DATA_PROPERTY = "data";
 
 // == Exports ==============================================================
 
-// TODO: Handle destructuring of data property in useQuery object pattern
-// example: const { data: { id, name } } = useQuery("Movie");
-// This would create multiple dataIdentifiers
+/**
+ * Returns data or aliased data identifier used with useQuery.
+ * Currently only allows destructuring the useQuery value:
+ * @example
+ * const { data } = useQuery("Movie");
+ *
+ * @todo Handle destructuring of data property in useQuery object pattern.
+ * This would create multiple dataIdentifiers
+ * @example const { data: { id, name } } = useQuery("Movie");
+ *
+ * @todo Track identifier's data property
+ * @example
+ * const result = useQuery("Movie");
+ * ...
+ * result.data.id
+ * // or
+ * const movie = result.data
+ * movie.id
+ */
 export function getDataIdentifier(t: typeof babelTypes, { id }: VariableDeclarator) {
-  // EXAMPLE: const result = useQuery("Movie");
-  if (t.isIdentifier(id)) return id.name;
   if (!t.isObjectPattern(id)) return null;
 
   // Find data property in destructured object and get alias name
