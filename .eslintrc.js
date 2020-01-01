@@ -20,9 +20,6 @@ module.exports = {
     "jest/globals": true,
   },
   settings: {
-    "import/resolver": {
-      "babel-module": {},
-    },
     "import/extensions": [".ts"],
   },
   rules: {
@@ -105,6 +102,7 @@ module.exports = {
     "import/no-cycle": "warn",
     "import/no-deprecated": "error",
     "import/no-duplicates": "error",
+    "import/extensions": ["error", "ignorePackages", { ts: "never" }],
     "import/order": [
       "error",
       {
