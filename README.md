@@ -1,3 +1,38 @@
+### TODO
+
+# Arguments
+
+- Remove arguments and directives after adding to graphql AST
+- Create alias for each field that has an argument so that you can use the same field with different arguments multiple times
+
+# Field parsing
+
+- Handle nested destructring of data property:
+  ```js
+  const {
+    data: {
+      director: { name },
+    },
+  } = useQuery();
+  ```
+- Handle nested destructuring outside of data property:
+  ```js
+  const { data } = useQuery();
+  const {
+    director: { name },
+  } = data;
+  ```
+
+# Arrays
+
+- Handle array functions like `.map`, `.forEeach`, `.reduce`
+- Look into tracking fields within array functions
+
+# Fragments
+
+- Setup `useFragment`
+- For every `useQuery`, look at child components and add their fragments to the query.
+
 ## Query
 
 ```jsx
