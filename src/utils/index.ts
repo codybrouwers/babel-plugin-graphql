@@ -1,6 +1,6 @@
 export { isUseQuery } from "./isUseQuery";
 export { getQueryName } from "./getQueryName";
-export { getDataIdentifier } from "./getDataIdentifier";
+export { getDataIdentifiers } from "./getDataIdentifiers";
 export { getQueryType } from "./getQueryType";
 export { jsValueToType } from "./jsValueToType";
 export { default as graphqlAST } from "./graphqlAST";
