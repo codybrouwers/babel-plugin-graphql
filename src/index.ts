@@ -5,7 +5,7 @@ import babelTypes from "@babel/types";
 import { print } from "graphql";
 import {
   isUseQuery,
-  getDataIdentifier,
+  getDataIdentifiers,
   getQueryName,
   getQueryType,
   graphqlAST,
@@ -15,6 +15,7 @@ import { GraphQLPathParser } from "./GraphQLPathParser";
 
 export default function({ types: t }: { types: typeof babelTypes }): PluginObj {
   return {
+    name: "graphql",
     inherits: jsx,
     visitor: {
       VariableDeclarator: (path) => {
@@ -23,24 +24,26 @@ export default function({ types: t }: { types: typeof babelTypes }): PluginObj {
         const functionParentPath = path.getFunctionParent();
         const queryType = getQueryType(t, path);
         const queryName = getQueryName(t, functionParentPath, queryType);
-        const dataIdentifier = getDataIdentifier(t, path.node);
+        const querySelections = graphqlAST.newFieldNode(queryType);
+        const dataIdentifiers = getDataIdentifiers(t, path, querySelections);
 
         // TODO: Better error messaging for when these aren't present
-        if (!dataIdentifier || !queryName || !queryType) return;
+        if (Object.keys(dataIdentifiers).length === 0 || !queryName || !queryType) return;
 
-        const querySelections = [queryType].map((parentType) => {
-          const { referencePaths } = path.scope.bindings[dataIdentifier] || {};
+        Object.entries(dataIdentifiers).map(([identifier, fieldNode]) => {
+          const { referencePaths } = path.scope.bindings[identifier] || {};
           return referencePaths.reduce((queryFieldNode, referencePath) => {
             if (referencePath.node.type !== "Identifier") return queryFieldNode;
-            if (referencePath.parent.type !== "MemberExpression") return queryFieldNode;
-
-            const parser = new GraphQLPathParser(referencePath, queryFieldNode, dataIdentifier);
+            if (!["MemberExpression", "CallExpression"].includes(referencePath.parent.type)) {
+              return queryFieldNode;
+            }
+            const parser = new GraphQLPathParser(referencePath, queryFieldNode, identifier);
             parser.addNodes();
             return parser.queryFieldNode;
-          }, graphqlAST.newFieldNode(parentType));
+          }, fieldNode);
         });
 
-        const documentNode = graphqlAST.newDocumentNode(queryName, querySelections);
+        const documentNode = graphqlAST.newDocumentNode(queryName, [querySelections]);
         const printedQuery = print(documentNode);
 
         const templateExpression = t.taggedTemplateExpression(
