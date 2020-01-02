@@ -19,8 +19,8 @@ function newFieldNode(
   name: string,
   {
     selectionNodes = [],
-    argumentNodes,
-    directiveNodes,
+    argumentNodes = [],
+    directiveNodes = [],
   }: {
     selectionNodes?: SelectionNode[];
     argumentNodes?: ArgumentNode[];
