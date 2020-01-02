@@ -1,4 +1,4 @@
-import { Node } from "@babel/types";
+import { CallExpression } from "@babel/types";
 import { ArgumentNode, DirectiveNode } from "graphql";
 import { objectExpressionArguments } from "./objectExpressionArguments";
 import graphqlAST from "./graphqlAST";
@@ -18,7 +18,7 @@ const DIRECTIVE_REGEX = /^@([a-z_]+)$/i;
 
 // == Exports ==============================================================
 
-export function callExpressionArguments(node: Node): IReturnType {
+export function callExpressionArguments(node: CallExpression): IReturnType {
   if (node.type !== "CallExpression") return {};
 
   let argumentNodes: ArgumentNode[] | undefined;
