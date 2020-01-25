@@ -1,5 +1,6 @@
 import { CallExpression } from "@babel/types";
 import { ArgumentNode, DirectiveNode } from "graphql";
+import { NodePath } from "@babel/core";
 import { objectExpressionArguments } from "./objectExpressionArguments";
 import graphqlAST from "./graphqlAST";
 
@@ -18,7 +19,8 @@ const DIRECTIVE_REGEX = /^@([a-z_]+)$/i;
 
 // == Exports ==============================================================
 
-export function callExpressionArguments(node: CallExpression): IReturnType {
+export function callExpressionArguments(path: NodePath<CallExpression>): IReturnType {
+  const { node } = path;
   if (node.type !== "CallExpression") return {};
 
   let argumentNodes: ArgumentNode[] | undefined;
@@ -44,5 +46,8 @@ export function callExpressionArguments(node: CallExpression): IReturnType {
         break;
     }
   }
+  // Remove arguments and directives call expression
+  path.replaceWith(path.node.callee);
+  path.skip();
   return { argumentNodes, directiveNodes };
 }

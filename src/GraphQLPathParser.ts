@@ -12,10 +12,10 @@ import { graphqlAST, callExpressionArguments } from "./utils";
 function findOrCreateFieldNode(
   fieldNode: FieldNode,
   propertyName: string,
-  argumentsNode: CallExpression | null
+  argumentsPath: NodePath<CallExpression> | null
 ) {
   const existingFieldNode = findFieldNode(fieldNode, propertyName);
-  const options = argumentsNode ? callExpressionArguments(argumentsNode) : undefined;
+  const options = argumentsPath ? callExpressionArguments(argumentsPath) : undefined;
   if (existingFieldNode) {
     mergeCallExpressionArguments(existingFieldNode, options);
     return existingFieldNode;
@@ -62,9 +62,11 @@ function getParentPropertyName(node: MemberExpression | CallExpression): string 
   return null;
 }
 
-function getArgumentsNode(path: NodePath<MemberExpression | CallExpression>) {
-  if (path.isMemberExpression() && path.parent.type === "CallExpression") return path.parent;
-  if (path.isCallExpression()) return path.node;
+function getArgumentsPath(
+  path: NodePath<MemberExpression | CallExpression>
+): NodePath<CallExpression> | null {
+  if (path.isMemberExpression() && path.parentPath.isCallExpression()) return path.parentPath;
+  if (path.isCallExpression()) return path;
   return null;
 }
 
@@ -76,7 +78,7 @@ function addFieldNodeForPathNode(
   const propertyName = nodeName(node);
   if (!propertyName) return fieldNode;
 
-  const propertyFieldNode = findOrCreateFieldNode(fieldNode, propertyName, getArgumentsNode(path));
+  const propertyFieldNode = findOrCreateFieldNode(fieldNode, propertyName, getArgumentsPath(path));
   const existingFieldNodes = filterFieldNodesWithoutProperty(fieldNode, propertyName);
   fieldNode.selectionSet = graphqlAST.newSelectionSet([...existingFieldNodes, propertyFieldNode]);
   return propertyFieldNode;
@@ -108,7 +110,9 @@ export class GraphQLPathParser {
   addNodes() {
     const ancestors = this.path.getAncestry();
     for (const ancestorPath of ancestors.slice(1)) {
+      if (ancestorPath.shouldSkip) continue;
       if (!ancestorPath.isMemberExpression() && !ancestorPath.isCallExpression()) continue;
+
       if (this.dataIdentifier === getParentPropertyName(ancestorPath.node)) {
         this.parentFieldNode = addFieldNodeForPathNode(ancestorPath, this.queryFieldNode);
       } else {

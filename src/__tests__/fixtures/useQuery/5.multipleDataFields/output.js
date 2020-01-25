@@ -25,7 +25,7 @@ function Movie() {
         <p>{name}</p>
         <p>{year.id}</p>
         <p>{actor.name}</p>
-        <p>{actor.birthDate("@preload")}</p>
+        <p>{actor.birthDate}</p>
       </div>
     </div>
   );
