@@ -3,11 +3,11 @@
 # Arguments
 
 - [x] Remove arguments and directives after adding to graphql AST
-- [] Create alias for each field that has an argument so that you can use the same field with different arguments multiple times
+- [ ] Create alias for each field that has an argument so that you can use the same field with different arguments multiple times
 
 # Field parsing
 
-- [] Handle nested destructuring of data property:
+- [ ] Handle nested destructuring of data property:
   ```js
   const {
     data: {
@@ -15,7 +15,7 @@
     },
   } = useQuery();
   ```
-- [] Handle nested destructuring outside of data property:
+- [ ] Handle nested destructuring outside of data property:
   ```js
   const { data } = useQuery();
   const {
@@ -25,13 +25,13 @@
 
 # Arrays
 
-- [] Handle array functions like `.map`, `.forEeach`, `.reduce`
-- [] Look into tracking fields within array functions
+- [ ] Handle array functions like `.map`, `.forEeach`, `.reduce`
+- [ ] Look into tracking fields within array functions
 
 # Fragments
 
-- [] Setup `useFragment`
-- [] For every `useQuery`, look at child components and add their fragments to the query.
+- [ ] Setup `useFragment`
+- [ ] For every `useQuery`, look at child components and add their fragments to the query.
 
 ## Query
 
