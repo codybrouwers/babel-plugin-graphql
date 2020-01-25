@@ -1,11 +1,11 @@
-### TODO
+## TODO
 
-# Arguments
+### Arguments
 
 - [x] Remove arguments and directives after adding to graphql AST
 - [ ] Create alias for each field that has an argument so that you can use the same field with different arguments multiple times
 
-# Field parsing
+### Field parsing
 
 - [ ] Handle nested destructuring of data property:
   ```js
@@ -23,17 +23,17 @@
   } = data;
   ```
 
-# Arrays
+### Arrays
 
 - [ ] Handle array functions like `.map`, `.forEeach`, `.reduce`
 - [ ] Look into tracking fields within array functions
 
-# Fragments
+### Fragments
 
 - [ ] Setup `useFragment`
 - [ ] For every `useQuery`, look at child components and add their fragments to the query.
 
-## Query
+### Query Examples
 
 ```jsx
 import { useQuery } from "blade/apollo.macro";
@@ -89,7 +89,7 @@ function MovieComponent() {
 }
 ```
 
-### Fragments
+### Fragment Examples
 
 ```jsx
 import { useFragment } from "blade/apollo.macro";
@@ -129,7 +129,7 @@ function MovieName({ id, name }) {
 }
 ```
 
-## Query with a fragment
+### Query with a fragment
 
 ```jsx
 import { useQuery } from "blade/apollo.macro";
@@ -179,7 +179,7 @@ function MovieComponent() {
 }
 ```
 
-## Mutations
+### Mutations Examples
 
 ```jsx
 import { useMutation } from "blade/apollo.macro";
