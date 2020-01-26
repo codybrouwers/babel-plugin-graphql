@@ -6,10 +6,16 @@ import {
   Kind,
   SelectionNode,
   DocumentNode,
-  SelectionSetNode,
 } from "graphql";
 
 // == Types ================================================================
+
+export interface INewFieldNodeOptions {
+  aliasName?: string;
+  selectionNodes?: SelectionNode[];
+  argumentNodes?: ArgumentNode[];
+  directiveNodes?: DirectiveNode[];
+}
 
 // == Constants ============================================================
 
@@ -18,18 +24,16 @@ import {
 function newFieldNode(
   name: string,
   {
+    aliasName = undefined,
     selectionNodes = [],
     argumentNodes = [],
     directiveNodes = [],
-  }: {
-    selectionNodes?: SelectionNode[];
-    argumentNodes?: ArgumentNode[];
-    directiveNodes?: DirectiveNode[];
-  } = {}
+  }: INewFieldNodeOptions = {}
 ): FieldNode {
   return {
     kind: Kind.FIELD,
     name: { kind: Kind.NAME, value: name },
+    alias: aliasName ? { kind: Kind.NAME, value: aliasName } : undefined,
     selectionSet: {
       kind: Kind.SELECTION_SET,
       selections: selectionNodes,

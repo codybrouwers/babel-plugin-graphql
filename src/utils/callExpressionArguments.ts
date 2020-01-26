@@ -1,15 +1,15 @@
+/**
+ * TODO:
+ * - Look at only aliasing fields if there are more then one of the same field with different arguments
+ */
+
 import { CallExpression } from "@babel/types";
 import { ArgumentNode, DirectiveNode } from "graphql";
 import { NodePath } from "@babel/core";
 import { objectExpressionArguments } from "./objectExpressionArguments";
-import graphqlAST from "./graphqlAST";
+import graphqlAST, { INewFieldNodeOptions } from "./graphqlAST";
 
 // == Types ================================================================
-
-interface IReturnType {
-  argumentNodes?: ArgumentNode[];
-  directiveNodes?: DirectiveNode[];
-}
 
 // == Constants ============================================================
 
@@ -17,9 +17,35 @@ const DIRECTIVE_REGEX = /^@([a-z_]+)$/i;
 
 // == Functions ============================================================
 
+// Remove arguments and directives call expression
+function replaceWithUIDIdentifier(path: NodePath<CallExpression>): string | undefined {
+  switch (path.node.callee.type) {
+    case "MemberExpression": {
+      const { name } = path.node.callee.property;
+      const uid = path.scope.generateUidIdentifier(name);
+      path.node.callee.property = uid;
+      path.replaceWith(path.node.callee);
+      path.skip();
+      return uid.name;
+    }
+    case "Identifier": {
+      const { name } = path.node.callee;
+      const uid = path.scope.generateUidIdentifier(name);
+      path.node.callee = uid;
+      path.replaceWith(path.node.callee);
+      path.skip();
+      return uid.name;
+    }
+    default: {
+      console.warn("TODO: Unrecognized callee type for CallExpression", path.node.callee.type); // eslint-disable-line no-console
+      return undefined;
+    }
+  }
+}
+
 // == Exports ==============================================================
 
-export function callExpressionArguments(path: NodePath<CallExpression>): IReturnType {
+export function callExpressionArguments(path: NodePath<CallExpression>): INewFieldNodeOptions {
   const { node } = path;
   if (node.type !== "CallExpression") return {};
 
@@ -43,11 +69,12 @@ export function callExpressionArguments(path: NodePath<CallExpression>): IReturn
         break;
       }
       default:
-        break;
+        throw new Error("Only objects or directives with an @ prefix are allowed as arguments");
     }
   }
-  // Remove arguments and directives call expression
-  path.replaceWith(path.node.callee);
-  path.skip();
-  return { argumentNodes, directiveNodes };
+  let aliasName;
+  if (argumentNodes?.length || directiveNodes?.length) {
+    aliasName = replaceWithUIDIdentifier(path);
+  }
+  return { argumentNodes, directiveNodes, aliasName };
 }

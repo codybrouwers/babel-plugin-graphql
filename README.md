@@ -3,7 +3,7 @@
 ### Arguments
 
 - [x] Remove arguments and directives after adding to graphql AST
-- [ ] Create alias for each field that has an argument so that you can use the same field with different arguments multiple times
+- [x] Create alias for each field that has an argument so that you can use the same field with different arguments multiple times
 
 ### Field parsing
 

@@ -16,7 +16,7 @@ function findOrCreateFieldNode(
 ) {
   const existingFieldNode = findFieldNode(fieldNode, propertyName);
   const options = argumentsPath ? callExpressionArguments(argumentsPath) : undefined;
-  if (existingFieldNode) {
+  if (existingFieldNode && !options?.aliasName) {
     mergeCallExpressionArguments(existingFieldNode, options);
     return existingFieldNode;
   }
@@ -33,14 +33,16 @@ function mergeCallExpressionArguments(
 
 function findFieldNode(fieldNode: FieldNode, propertyName: string) {
   return fieldNode.selectionSet?.selections.find(
-    (node): node is FieldNode => node.kind === Kind.FIELD && node.name.value === propertyName
+    (node): node is FieldNode =>
+      node.kind === Kind.FIELD && (node.alias?.value || node.name.value) === propertyName
   );
 }
 
 function filterFieldNodesWithoutProperty(fieldNode: FieldNode, propertyName: string) {
   return (
     fieldNode.selectionSet?.selections.filter(
-      (node): node is FieldNode => node.kind === Kind.FIELD && node.name.value !== propertyName
+      (node): node is FieldNode =>
+        node.kind === Kind.FIELD && (node.alias?.value || node.name.value) !== propertyName
     ) || []
   );
 }
