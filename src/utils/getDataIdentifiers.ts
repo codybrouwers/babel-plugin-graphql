@@ -30,14 +30,20 @@ function parseNestedObjects(
   dataIdentifiers: IDataIdentifiers
 ) {
   for (const property of properties) {
-    if (t.isObjectProperty(property)) {
-      if (property.shorthand && t.isIdentifier(property.value)) {
-        const propertyName = property.value.name;
-        const existingFieldNodes = filterFieldNodesWithoutProperty(fieldNode, propertyName);
-        const newFieldNode = graphqlAST.newFieldNode(propertyName);
-        fieldNode.selectionSet = graphqlAST.newSelectionSet([...existingFieldNodes, newFieldNode]);
-        dataIdentifiers[propertyName] = newFieldNode;
-      }
+    if (!t.isObjectProperty(property)) continue;
+
+    if (property.shorthand && t.isIdentifier(property.value)) {
+      const propertyName = property.value.name;
+      const existingFieldNodes = filterFieldNodesWithoutProperty(fieldNode, propertyName);
+      const newFieldNode = graphqlAST.newFieldNode(propertyName);
+      fieldNode.selectionSet = graphqlAST.newSelectionSet([...existingFieldNodes, newFieldNode]);
+      dataIdentifiers[propertyName] = newFieldNode;
+    } else if (t.isObjectPattern(property.value) && t.isIdentifier(property.key)) {
+      const propertyName = property.key.name;
+      const existingFieldNodes = filterFieldNodesWithoutProperty(fieldNode, propertyName);
+      const newFieldNode = graphqlAST.newFieldNode(propertyName);
+      fieldNode.selectionSet = graphqlAST.newSelectionSet([...existingFieldNodes, newFieldNode]);
+      parseNestedObjects(t, property.value.properties, newFieldNode, dataIdentifiers);
     }
   }
 }

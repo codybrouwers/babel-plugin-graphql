@@ -7,7 +7,7 @@
 
 ### Field parsing
 
-- [ ] Handle nested destructuring of data property:
+- [x] Handle nested destructuring of data property:
   ```js
   const {
     data: {

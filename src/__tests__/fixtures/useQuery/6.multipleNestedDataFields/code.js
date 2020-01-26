@@ -1,6 +1,13 @@
 function Movie() {
   const {
-    data: { id, name, actor, year },
+    data: {
+      id,
+      name,
+      actor,
+      year: {
+        date: { day },
+      },
+    },
   } = useQuery("GetMovie");
 
   return (
@@ -8,7 +15,7 @@ function Movie() {
       <div>
         <p>{id}</p>
         <p>{name}</p>
-        <p>{year.id}</p>
+        <p>{day}</p>
         <p>{actor.name}</p>
         <p>{actor.birthDate("@preload")}</p>
       </div>

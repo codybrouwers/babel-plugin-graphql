@@ -10,13 +10,15 @@ describe("tests pass", () => {
       // {
       //   code: `
       //     function Movie() {
-      //       const { data } = useQuery("GetMovie");
+      //       const {
+      //         data: { id, year },
+      //       } = useQuery("GetMovie");
+      //       const { day } = year;
       //       return (
       //         <div>
       //           <div>
-      //             <p>{data.name({ firstOnly: true }, "@preload")}</p>
-      //             <p>{data.name({ firstOnly: false }).formatted}</p>
-      //             <p>{data.name("@cache", { format: "number" }).formatted}</p>
+      //             <p>{id}</p>
+      //             <p>{day}</p>
       //           </div>
       //         </div>
       //       );
@@ -26,62 +28,28 @@ describe("tests pass", () => {
       //     const _MOVIE__GETMOVIEQUERY = gql\`
       //       query Movie__GetMovieQuery {
       //         GetMovie {
-      //           _name: name(firstOnly: true) @preload
-      //           _name2: name(firstOnly: false) {
-      //             formatted
-      //           }
-      //           _name3: name(format: "number") @cache {
-      //             formatted
-      //           }
-      //         }
-      //       }
-      //     \`;
-      //     function Movie() {
-      //       const { data } = useQuery(_MOVIE__GETMOVIEQUERY);
-      //       return (
-      //         <div>
-      //           <div>
-      //             <p>{data._name}</p>
-      //             <p>{data._name2.formatted}</p>
-      //             <p>{data._name3.formatted}</p>
-      //           </div>
-      //         </div>
-      //       );
-      //     }
-      // `,
-      // },
-      // {
-      //   code: `
-      //     function Movie() {
-      //       const { data: { company } } = useQuery("GetMovie");
-      //       return (
-      //         <div>
-      //           <p>{company.birthdate("@preload")}</p>
-      //         </div>
-      //       );
-      //     }
-      //   `,
-      //   output: `
-      //     const _MOVIE__GETMOVIEQUERY = gql\`
-      //       query Movie__GetMovieQuery {
-      //         GetMovie {
-      //           company {
-      //             birthdate @preload
+      //           id
+      //           year {
+      //             day
       //           }
       //         }
       //       }
       //     \`;
       //     function Movie() {
       //       const {
-      //         data: { company },
+      //         data: { id, year },
       //       } = useQuery(_MOVIE__GETMOVIEQUERY);
+      //       const { day } = year;
       //       return (
       //         <div>
-      //           <p>{company.birthdate("@preload")}</p>
+      //           <div>
+      //             <p>{id}</p>
+      //             <p>{day}</p>
+      //           </div>
       //         </div>
       //       );
       //     }
-      //   `,
+      // `,
       // },
     ],
   });
