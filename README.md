@@ -15,12 +15,21 @@
     },
   } = useQuery();
   ```
-- [ ] Handle nested destructuring outside of data property:
+- [x] Handle nested destructuring outside of data property:
+
   ```js
   const { data } = useQuery();
   const {
-    director: { name },
+    director: { name, year },
   } = data;
+  const { month } = year;
+  ```
+
+- [ ] Handle nested destructuring outside of data property with a path:
+  ```js
+  const { data } = useQuery();
+  const { director } = data;
+  const { month, day } = director.year;
   ```
 
 ### Arrays

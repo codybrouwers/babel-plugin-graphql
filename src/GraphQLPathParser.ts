@@ -1,9 +1,11 @@
-import { MemberExpression, Node, CallExpression } from "@babel/types";
+import { MemberExpression, Node, CallExpression, VariableDeclarator } from "@babel/types";
 import { Kind, FieldNode } from "graphql";
 import { NodePath } from "@babel/core";
 import { graphqlAST, callExpressionArguments } from "./utils";
 
 // == Types ================================================================
+
+type TParsableNodeTypes = MemberExpression | CallExpression;
 
 // == Constants ============================================================
 
@@ -47,7 +49,7 @@ function filterFieldNodesWithoutProperty(fieldNode: FieldNode, propertyName: str
   );
 }
 
-function getParentPropertyName(node: MemberExpression | CallExpression): string | null {
+function getParentPropertyName(node: TParsableNodeTypes): string | null {
   if (node.type === "MemberExpression") {
     const { object } = node;
     switch (object.type) {
@@ -58,22 +60,27 @@ function getParentPropertyName(node: MemberExpression | CallExpression): string 
       default:
         return null;
     }
+  } else if (node.type === "VariableDeclarator") {
+    switch (node.init?.type) {
+      case "Identifier":
+        return node.init.name;
+      default:
+        return null;
+    }
   } else if (node.type === "CallExpression" && node.callee.type === "Identifier") {
     return node.callee.name;
   }
   return null;
 }
 
-function getArgumentsPath(
-  path: NodePath<MemberExpression | CallExpression>
-): NodePath<CallExpression> | null {
+function getArgumentsPath(path: NodePath<TParsableNodeTypes>): NodePath<CallExpression> | null {
   if (path.isMemberExpression() && path.parentPath.isCallExpression()) return path.parentPath;
   if (path.isCallExpression()) return path;
   return null;
 }
 
 function addFieldNodeForPathNode(
-  path: NodePath<MemberExpression | CallExpression>,
+  path: NodePath<TParsableNodeTypes>,
   fieldNode: $Writeable<FieldNode>
 ): FieldNode {
   const { node } = path;
@@ -86,8 +93,9 @@ function addFieldNodeForPathNode(
   return propertyFieldNode;
 }
 
-function nodeName(node: MemberExpression | CallExpression) {
+function nodeName(node: TParsableNodeTypes) {
   if (node.type === "MemberExpression") return node.property.name;
+  if (node.type === "VariableDeclarator" && node.init?.type === "Identifier") return node.init.name;
   if (node.type === "CallExpression" && node.callee.type === "Identifier") return node.callee.name;
   return null;
 }
@@ -95,6 +103,10 @@ function nodeName(node: MemberExpression | CallExpression) {
 // == Exports ==============================================================
 
 export class GraphQLPathParser {
+  static canParse(path: NodePath<Node>): path is NodePath<TParsableNodeTypes> {
+    return path.isMemberExpression() || path.isCallExpression();
+  }
+
   path: NodePath<Node>;
 
   queryFieldNode: $Writeable<FieldNode>;
@@ -113,7 +125,7 @@ export class GraphQLPathParser {
     const ancestors = this.path.getAncestry();
     for (const ancestorPath of ancestors.slice(1)) {
       if (ancestorPath.shouldSkip) continue;
-      if (!ancestorPath.isMemberExpression() && !ancestorPath.isCallExpression()) continue;
+      if (!GraphQLPathParser.canParse(ancestorPath)) continue;
 
       if (this.dataIdentifier === getParentPropertyName(ancestorPath.node)) {
         this.parentFieldNode = addFieldNodeForPathNode(ancestorPath, this.queryFieldNode);

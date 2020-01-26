@@ -29,14 +29,12 @@ export default function({ types: t }: { types: typeof babelTypes }): PluginObj {
 
         // TODO: Better error messaging for when these aren't present
         if (Object.keys(dataIdentifiers).length === 0 || !queryName || !queryType) return;
-
         Object.entries(dataIdentifiers).map(([identifier, fieldNode]) => {
           const { referencePaths } = path.scope.bindings[identifier] || {};
           return referencePaths.reduce((queryFieldNode, referencePath) => {
             if (referencePath.node.type !== "Identifier") return queryFieldNode;
-            if (!["MemberExpression", "CallExpression"].includes(referencePath.parent.type)) {
-              return queryFieldNode;
-            }
+            if (!GraphQLPathParser.canParse(referencePath.parentPath)) return queryFieldNode;
+
             const parser = new GraphQLPathParser(referencePath, queryFieldNode, identifier);
             parser.addNodes();
             return parser.queryFieldNode;

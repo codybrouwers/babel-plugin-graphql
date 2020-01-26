@@ -10,15 +10,14 @@ describe("tests pass", () => {
       // {
       //   code: `
       //     function Movie() {
-      //       const {
-      //         data: { id, year },
-      //       } = useQuery("GetMovie");
-      //       const { day } = year;
+      //       const { data } = useQuery("GetMovie");
+      //       const { thing } = data;
+      //       const { month } = data.year;
       //       return (
       //         <div>
       //           <div>
-      //             <p>{id}</p>
-      //             <p>{day}</p>
+      //             <p>{thing}</p>
+      //             <p>{month}</p>
       //           </div>
       //         </div>
       //       );
@@ -28,23 +27,19 @@ describe("tests pass", () => {
       //     const _MOVIE__GETMOVIEQUERY = gql\`
       //       query Movie__GetMovieQuery {
       //         GetMovie {
-      //           id
       //           year {
-      //             day
+      //             month
       //           }
       //         }
       //       }
       //     \`;
       //     function Movie() {
-      //       const {
-      //         data: { id, year },
-      //       } = useQuery(_MOVIE__GETMOVIEQUERY);
-      //       const { day } = year;
+      //       const { data } = useQuery(_MOVIE__GETMOVIEQUERY);
+      //       const { month } = data.year;
       //       return (
       //         <div>
       //           <div>
-      //             <p>{id}</p>
-      //             <p>{day}</p>
+      //             <p>{month}</p>
       //           </div>
       //         </div>
       //       );

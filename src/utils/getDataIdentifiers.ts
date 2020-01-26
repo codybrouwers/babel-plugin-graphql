@@ -1,4 +1,4 @@
-import babelTypes, { VariableDeclarator, ObjectProperty, ObjectPattern } from "@babel/types";
+import babelTypes, { VariableDeclarator, ObjectPattern } from "@babel/types";
 import { NodePath } from "@babel/core";
 import { Kind, FieldNode } from "graphql";
 import { graphqlAST } from ".";
@@ -25,8 +25,9 @@ function filterFieldNodesWithoutProperty(fieldNode: FieldNode, propertyName: str
 
 function parseNestedObjects(
   t: typeof babelTypes,
+  path: NodePath<VariableDeclarator>,
   properties: ObjectPattern["properties"],
-  fieldNode: $Writeable<FieldNode>,
+  querySelections: $Writeable<FieldNode>,
   dataIdentifiers: IDataIdentifiers
 ) {
   for (const property of properties) {
@@ -34,18 +35,44 @@ function parseNestedObjects(
 
     if (property.shorthand && t.isIdentifier(property.value)) {
       const propertyName = property.value.name;
-      const existingFieldNodes = filterFieldNodesWithoutProperty(fieldNode, propertyName);
+      const existingFieldNodes = filterFieldNodesWithoutProperty(querySelections, propertyName);
       const newFieldNode = graphqlAST.newFieldNode(propertyName);
-      fieldNode.selectionSet = graphqlAST.newSelectionSet([...existingFieldNodes, newFieldNode]);
+      querySelections.selectionSet = graphqlAST.newSelectionSet([
+        ...existingFieldNodes,
+        newFieldNode,
+      ]);
       dataIdentifiers[propertyName] = newFieldNode;
+      parseReferencePaths(t, path, propertyName, newFieldNode, dataIdentifiers);
     } else if (t.isObjectPattern(property.value) && t.isIdentifier(property.key)) {
       const propertyName = property.key.name;
-      const existingFieldNodes = filterFieldNodesWithoutProperty(fieldNode, propertyName);
+      const existingFieldNodes = filterFieldNodesWithoutProperty(querySelections, propertyName);
       const newFieldNode = graphqlAST.newFieldNode(propertyName);
-      fieldNode.selectionSet = graphqlAST.newSelectionSet([...existingFieldNodes, newFieldNode]);
-      parseNestedObjects(t, property.value.properties, newFieldNode, dataIdentifiers);
+      querySelections.selectionSet = graphqlAST.newSelectionSet([
+        ...existingFieldNodes,
+        newFieldNode,
+      ]);
+      parseNestedObjects(t, path, property.value.properties, newFieldNode, dataIdentifiers);
     }
   }
+}
+
+function parseReferencePaths(
+  t: typeof babelTypes,
+  path: NodePath<VariableDeclarator>,
+  propertyName: string,
+  querySelections: $Writeable<FieldNode>,
+  dataIdentifiers: IDataIdentifiers
+) {
+  path.scope.bindings[propertyName].referencePaths.forEach((referencePath) => {
+    if (referencePath.parent.type !== "VariableDeclarator") return;
+    parseNestedObjects(
+      t,
+      path,
+      referencePath.parent.id.properties,
+      querySelections,
+      dataIdentifiers
+    );
+  });
 }
 
 // == Exports ==============================================================
@@ -80,10 +107,11 @@ export function getDataIdentifiers(
   for (const property of id.properties) {
     if (t.isObjectProperty(property) && t.isIdentifier(property.key, { name: DATA_PROPERTY })) {
       if (t.isIdentifier(property.value)) {
+        parseReferencePaths(t, path, property.value.name, querySelections, dataIdentifiers);
         dataIdentifiers[property.value.name] = querySelections;
       }
       if (t.isObjectPattern(property.value)) {
-        parseNestedObjects(t, property.value.properties, querySelections, dataIdentifiers);
+        parseNestedObjects(t, path, property.value.properties, querySelections, dataIdentifiers);
       }
     }
   }
