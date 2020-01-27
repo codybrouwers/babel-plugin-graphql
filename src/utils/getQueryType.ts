@@ -1,4 +1,4 @@
-import babelTypes, { VariableDeclarator } from "@babel/types";
+import { VariableDeclarator, isCallExpression, isStringLiteral } from "@babel/types";
 import { NodePath } from "@babel/traverse";
 
 // == Types ================================================================
@@ -19,15 +19,15 @@ import { NodePath } from "@babel/traverse";
  * ↓ ↓ ↓ ↓ ↓ ↓
  * "GetMovie"
  */
-export function getQueryType(t: typeof babelTypes, path: NodePath<VariableDeclarator>) {
+export function getQueryType(path: NodePath<VariableDeclarator>) {
   const { init } = path.node;
 
-  if (!t.isCallExpression(init)) {
+  if (!isCallExpression(init)) {
     throw path.buildCodeFrameError("useQuery is not invoked");
   }
 
   const queryArg = init.arguments[0];
-  if (!t.isStringLiteral(queryArg)) {
+  if (!isStringLiteral(queryArg)) {
     throw path.buildCodeFrameError(
       "The first argument of useQuery must be a string specifying the graphql type the query is on."
     );

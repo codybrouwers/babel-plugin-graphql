@@ -22,10 +22,10 @@ export default function({ types: t }: { types: typeof babelTypes }): PluginObj {
         if (!isUseQuery(t, path.node)) return;
 
         const functionParentPath = path.getFunctionParent();
-        const queryType = getQueryType(t, path);
-        const queryName = getQueryName(t, functionParentPath, queryType);
+        const queryType = getQueryType(path);
+        const queryName = getQueryName(functionParentPath, queryType);
         const querySelections = graphqlAST.newFieldNode(queryType);
-        const dataIdentifiers = getDataIdentifiers(t, path, querySelections);
+        const dataIdentifiers = getDataIdentifiers(path, querySelections);
 
         // TODO: Better error messaging for when these aren't present
         if (Object.keys(dataIdentifiers).length === 0 || !queryName || !queryType) return;

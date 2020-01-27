@@ -1,4 +1,10 @@
-import babelTypes, { VariableDeclarator, ObjectPattern } from "@babel/types";
+import {
+  VariableDeclarator,
+  ObjectPattern,
+  isIdentifier,
+  isObjectProperty,
+  isObjectPattern,
+} from "@babel/types";
 import { NodePath } from "@babel/core";
 import { Kind, FieldNode } from "graphql";
 import { graphqlAST } from ".";
@@ -24,16 +30,15 @@ function filterFieldNodesWithoutProperty(fieldNode: FieldNode, propertyName: str
 }
 
 function parseNestedObjects(
-  t: typeof babelTypes,
   path: NodePath<VariableDeclarator>,
   properties: ObjectPattern["properties"],
   querySelections: $Writeable<FieldNode>,
   dataIdentifiers: IDataIdentifiers
 ) {
   for (const property of properties) {
-    if (!t.isObjectProperty(property)) continue;
+    if (!isObjectProperty(property)) continue;
 
-    if (property.shorthand && t.isIdentifier(property.value)) {
+    if (property.shorthand && isIdentifier(property.value)) {
       const propertyName = property.value.name;
       const existingFieldNodes = filterFieldNodesWithoutProperty(querySelections, propertyName);
       const newFieldNode = graphqlAST.newFieldNode(propertyName);
@@ -42,8 +47,8 @@ function parseNestedObjects(
         newFieldNode,
       ]);
       dataIdentifiers[propertyName] = newFieldNode;
-      parseReferencePaths(t, path, propertyName, newFieldNode, dataIdentifiers);
-    } else if (t.isObjectPattern(property.value) && t.isIdentifier(property.key)) {
+      parseReferencePaths(path, propertyName, newFieldNode, dataIdentifiers);
+    } else if (isObjectPattern(property.value) && isIdentifier(property.key)) {
       const propertyName = property.key.name;
       const existingFieldNodes = filterFieldNodesWithoutProperty(querySelections, propertyName);
       const newFieldNode = graphqlAST.newFieldNode(propertyName);
@@ -51,13 +56,12 @@ function parseNestedObjects(
         ...existingFieldNodes,
         newFieldNode,
       ]);
-      parseNestedObjects(t, path, property.value.properties, newFieldNode, dataIdentifiers);
+      parseNestedObjects(path, property.value.properties, newFieldNode, dataIdentifiers);
     }
   }
 }
 
 function parseReferencePaths(
-  t: typeof babelTypes,
   path: NodePath<VariableDeclarator>,
   propertyName: string,
   querySelections: $Writeable<FieldNode>,
@@ -65,13 +69,7 @@ function parseReferencePaths(
 ) {
   path.scope.bindings[propertyName].referencePaths.forEach((referencePath) => {
     if (referencePath.parent.type !== "VariableDeclarator") return;
-    parseNestedObjects(
-      t,
-      path,
-      referencePath.parent.id.properties,
-      querySelections,
-      dataIdentifiers
-    );
+    parseNestedObjects(path, referencePath.parent.id.properties, querySelections, dataIdentifiers);
   });
 }
 
@@ -92,26 +90,23 @@ function parseReferencePaths(
  * const movie = result.data
  * movie.id
  */
-export function getDataIdentifiers(
-  t: typeof babelTypes,
-  path: NodePath<VariableDeclarator>,
-  querySelections: FieldNode
-) {
+export function getDataIdentifiers(path: NodePath<VariableDeclarator>, querySelections: FieldNode) {
   const { node } = path;
   const { id } = node;
-  if (!t.isObjectPattern(id)) return {};
+  if (!isObjectPattern(id)) return {};
+  // if (!t.isObjectPattern(id)) return {};
 
   // Find data property in destructured object and get alias name
   // EXAMPLE: const { data: dataAlias } = useQuery("Movie");
   const dataIdentifiers: IDataIdentifiers = {};
   for (const property of id.properties) {
-    if (t.isObjectProperty(property) && t.isIdentifier(property.key, { name: DATA_PROPERTY })) {
-      if (t.isIdentifier(property.value)) {
-        parseReferencePaths(t, path, property.value.name, querySelections, dataIdentifiers);
+    if (isObjectProperty(property) && isIdentifier(property.key, { name: DATA_PROPERTY })) {
+      if (isIdentifier(property.value)) {
+        parseReferencePaths(path, property.value.name, querySelections, dataIdentifiers);
         dataIdentifiers[property.value.name] = querySelections;
       }
-      if (t.isObjectPattern(property.value)) {
-        parseNestedObjects(t, path, property.value.properties, querySelections, dataIdentifiers);
+      if (isObjectPattern(property.value)) {
+        parseNestedObjects(path, property.value.properties, querySelections, dataIdentifiers);
       }
     }
   }

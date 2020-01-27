@@ -1,4 +1,4 @@
-import babelTypes, { Function } from "@babel/types";
+import { Function, isVariableDeclarator, isIdentifier } from "@babel/types";
 import { NodePath } from "@babel/traverse";
 
 // == Types ================================================================
@@ -22,11 +22,7 @@ import { NodePath } from "@babel/traverse";
  * @todo Handle component wrapper functions like
  * @example const MyComponent = memo(someWrapper((props) => ...
  */
-export function getQueryName(
-  t: typeof babelTypes,
-  parentPath: NodePath<Function>,
-  queryType: string
-): null | string {
+export function getQueryName(parentPath: NodePath<Function>, queryType: string): null | string {
   let queryName;
   switch (parentPath.node.type) {
     case "FunctionDeclaration":
@@ -35,8 +31,8 @@ export function getQueryName(
     case "FunctionExpression":
     case "ArrowFunctionExpression": {
       const { parent } = parentPath;
-      if (!t.isVariableDeclarator(parent)) break;
-      if (!t.isIdentifier(parent.id)) break;
+      if (!isVariableDeclarator(parent)) break;
+      if (!isIdentifier(parent.id)) break;
 
       queryName = parent.id.name;
       break;
