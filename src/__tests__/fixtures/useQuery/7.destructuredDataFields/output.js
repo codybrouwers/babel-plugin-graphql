@@ -8,12 +8,12 @@ const _MOVIE__GETMOVIEQUERY = gql`
         _birthDate: birthDate @preload
       }
       year {
-        day
         month {
           aNestedField {
             evenMoreNested
           }
         }
+        day
       }
     }
   }
@@ -27,6 +27,7 @@ function Movie() {
   const {
     month: { aNestedField },
   } = year;
+  const actorName = actor.name;
   return (
     <div>
       <div>
@@ -36,6 +37,7 @@ function Movie() {
         <p>{month}</p>
         <p>{aNestedField.evenMoreNested}</p>
         <p>{actor.name}</p>
+        <p>{actorName}</p>
         <p>{actor._birthDate}</p>
       </div>
     </div>

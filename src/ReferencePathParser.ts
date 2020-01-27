@@ -2,10 +2,11 @@ import * as t from "@babel/types";
 import { Kind, FieldNode } from "graphql";
 import { NodePath } from "@babel/core";
 import { graphqlAST, callExpressionArguments } from "./utils";
+import { DataIdentifierParser } from "./DataIdentifierParser";
 
 // == Types ================================================================
 
-type TParsableNodeTypes = t.MemberExpression | t.CallExpression;
+type TParsableNodeTypes = t.MemberExpression | t.CallExpression | t.Identifier;
 
 // == Constants ============================================================
 
@@ -49,17 +50,20 @@ function filterFieldNodesWithoutProperty(fieldNode: FieldNode, propertyName: str
   );
 }
 
-function getParentPropertyName(node: TParsableNodeTypes): string | null {
+function getPropertyName(node: TParsableNodeTypes): string | null {
   if (node.type === "MemberExpression") {
     const { object } = node;
     switch (object.type) {
       case "Identifier":
-        return object.name;
+        if (object.name === "data") return object.name;
+        return node.property.name;
       case "MemberExpression":
         return object.property.name;
       default:
         return null;
     }
+  } else if (node.type === "Identifier") {
+    return node.name;
   } else if (node.type === "CallExpression" && node.callee.type === "Identifier") {
     return node.callee.name;
   }
@@ -88,6 +92,7 @@ function addFieldNodeForPathNode(
 
 function nodeName(node: TParsableNodeTypes) {
   if (node.type === "MemberExpression") return node.property.name;
+  if (node.type === "Identifier") return node.name;
   if (node.type === "CallExpression" && node.callee.type === "Identifier") return node.callee.name;
   return null;
 }
@@ -96,7 +101,8 @@ function nodeName(node: TParsableNodeTypes) {
 
 export class ReferencePathParser {
   static canParse(path: NodePath<t.Node>): path is NodePath<TParsableNodeTypes> {
-    return path.isMemberExpression() || path.isCallExpression();
+    if (path.isIdentifier() && path.node.name === "data") return false;
+    return path.isMemberExpression() || path.isCallExpression() || path.isIdentifier();
   }
 
   path: NodePath<t.Node>;
@@ -115,16 +121,42 @@ export class ReferencePathParser {
 
   parse() {
     const ancestors = this.path.getAncestry();
-    for (const ancestorPath of ancestors.slice(1)) {
+    for (const ancestorPath of ancestors) {
       if (ancestorPath.shouldSkip) continue;
       if (!ReferencePathParser.canParse(ancestorPath)) continue;
-
-      if (this.dataIdentifier === getParentPropertyName(ancestorPath.node)) {
+      debugger;
+      if (
+        this.dataIdentifier === getPropertyName(ancestorPath.node) &&
+        this.fieldNode.name.value !== this.dataIdentifier
+      ) {
         this.parentFieldNode = addFieldNodeForPathNode(ancestorPath, this.fieldNode);
+      } else if (this.fieldNode.name.value === getPropertyName(ancestorPath.node)) {
+        this.parentFieldNode = this.fieldNode;
       } else {
         if (!this.parentFieldNode) return;
 
         this.parentFieldNode = addFieldNodeForPathNode(ancestorPath, this.parentFieldNode);
+      }
+
+      // TODO: Cleanup
+      if (ancestorPath.parentPath.isVariableDeclarator()) {
+        if (ancestorPath.parentPath.node.id.type === "Identifier") {
+          new DataIdentifierParser(
+            ancestorPath.parentPath,
+            this.parentFieldNode,
+            ancestorPath.parentPath.node.id.name
+          ).parse();
+        } else if (ancestorPath.parentPath.node.id.type === "ObjectPattern") {
+          for (const property of ancestorPath.parentPath.node.id.properties) {
+            if (property.type !== "ObjectProperty") continue;
+
+            new DataIdentifierParser(
+              ancestorPath.parentPath,
+              this.parentFieldNode,
+              property.key.name
+            ).parse();
+          }
+        }
       }
     }
   }
