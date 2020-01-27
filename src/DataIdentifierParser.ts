@@ -33,6 +33,6 @@ export class DataIdentifierParser {
   }
 
   private referencePaths() {
-    return this.path.scope.bindings[this.dataIdentifier]?.referencePaths || {};
+    return this.path.scope.bindings[this.dataIdentifier]?.referencePaths || [];
   }
 }
