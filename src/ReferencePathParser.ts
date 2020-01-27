@@ -1,11 +1,11 @@
-import { MemberExpression, Node, CallExpression } from "@babel/types";
+import * as t from "@babel/types";
 import { Kind, FieldNode } from "graphql";
 import { NodePath } from "@babel/core";
 import { graphqlAST, callExpressionArguments } from "./utils";
 
 // == Types ================================================================
 
-type TParsableNodeTypes = MemberExpression | CallExpression;
+type TParsableNodeTypes = t.MemberExpression | t.CallExpression;
 
 // == Constants ============================================================
 
@@ -14,7 +14,7 @@ type TParsableNodeTypes = MemberExpression | CallExpression;
 function findOrCreateFieldNode(
   fieldNode: FieldNode,
   propertyName: string,
-  argumentsPath: NodePath<CallExpression> | null
+  argumentsPath: NodePath<t.CallExpression> | null
 ) {
   const existingFieldNode = findFieldNode(fieldNode, propertyName);
   const options = argumentsPath ? callExpressionArguments(argumentsPath) : undefined;
@@ -66,7 +66,7 @@ function getParentPropertyName(node: TParsableNodeTypes): string | null {
   return null;
 }
 
-function getArgumentsPath(path: NodePath<TParsableNodeTypes>): NodePath<CallExpression> | null {
+function getArgumentsPath(path: NodePath<TParsableNodeTypes>): NodePath<t.CallExpression> | null {
   if (path.isMemberExpression() && path.parentPath.isCallExpression()) return path.parentPath;
   if (path.isCallExpression()) return path;
   return null;
@@ -95,11 +95,11 @@ function nodeName(node: TParsableNodeTypes) {
 // == Exports ==============================================================
 
 export class ReferencePathParser {
-  static canParse(path: NodePath<Node>): path is NodePath<TParsableNodeTypes> {
+  static canParse(path: NodePath<t.Node>): path is NodePath<TParsableNodeTypes> {
     return path.isMemberExpression() || path.isCallExpression();
   }
 
-  path: NodePath<Node>;
+  path: NodePath<t.Node>;
 
   fieldNode: $Writeable<FieldNode>;
 
@@ -107,7 +107,7 @@ export class ReferencePathParser {
 
   parentFieldNode?: $Writeable<FieldNode>;
 
-  constructor(path: NodePath<Node>, fieldNode: FieldNode, dataIdentifier: string) {
+  constructor(path: NodePath<t.Identifier>, fieldNode: FieldNode, dataIdentifier: string) {
     this.path = path;
     this.fieldNode = fieldNode;
     this.dataIdentifier = dataIdentifier;
@@ -123,6 +123,7 @@ export class ReferencePathParser {
         this.parentFieldNode = addFieldNodeForPathNode(ancestorPath, this.fieldNode);
       } else {
         if (!this.parentFieldNode) return;
+
         this.parentFieldNode = addFieldNodeForPathNode(ancestorPath, this.parentFieldNode);
       }
     }

@@ -1,13 +1,7 @@
-import {
-  VariableDeclarator,
-  ObjectPattern,
-  isIdentifier,
-  isObjectProperty,
-  isObjectPattern,
-} from "@babel/types";
+import * as t from "@babel/types";
 import { NodePath } from "@babel/core";
 import { Kind, FieldNode } from "graphql";
-import { graphqlAST } from ".";
+import graphqlAST from "./graphqlAST";
 
 // == Types ================================================================
 
@@ -16,8 +10,6 @@ interface IDataIdentifiers {
 }
 
 // == Constants ============================================================
-
-const DATA_PROPERTY = "data";
 
 // == Functions ============================================================
 
@@ -30,15 +22,15 @@ function filterFieldNodesWithoutProperty(fieldNode: FieldNode, propertyName: str
 }
 
 function parseNestedObjects(
-  path: NodePath<VariableDeclarator>,
-  properties: ObjectPattern["properties"],
+  path: NodePath<t.VariableDeclarator>,
+  properties: t.ObjectPattern["properties"],
   querySelections: $Writeable<FieldNode>,
   dataIdentifiers: IDataIdentifiers
 ) {
   for (const property of properties) {
-    if (!isObjectProperty(property)) continue;
+    if (!t.isObjectProperty(property)) continue;
 
-    if (property.shorthand && isIdentifier(property.value)) {
+    if (property.shorthand && t.isIdentifier(property.value)) {
       const propertyName = property.value.name;
       const existingFieldNodes = filterFieldNodesWithoutProperty(querySelections, propertyName);
       const newFieldNode = graphqlAST.newFieldNode(propertyName);
@@ -48,7 +40,7 @@ function parseNestedObjects(
       ]);
       dataIdentifiers[propertyName] = newFieldNode;
       parseReferencePaths(path, propertyName, newFieldNode, dataIdentifiers);
-    } else if (isObjectPattern(property.value) && isIdentifier(property.key)) {
+    } else if (t.isObjectPattern(property.value) && t.isIdentifier(property.key)) {
       const propertyName = property.key.name;
       const existingFieldNodes = filterFieldNodesWithoutProperty(querySelections, propertyName);
       const newFieldNode = graphqlAST.newFieldNode(propertyName);
@@ -62,7 +54,7 @@ function parseNestedObjects(
 }
 
 function parseReferencePaths(
-  path: NodePath<VariableDeclarator>,
+  path: NodePath<t.VariableDeclarator>,
   propertyName: string,
   querySelections: $Writeable<FieldNode>,
   dataIdentifiers: IDataIdentifiers
@@ -90,22 +82,28 @@ function parseReferencePaths(
  * const movie = result.data
  * movie.id
  */
-export function getDataIdentifiers(path: NodePath<VariableDeclarator>, querySelections: FieldNode) {
+export function getDataIdentifiers(
+  path: NodePath<t.VariableDeclarator>,
+  querySelections: FieldNode,
+  propertyName?: string
+) {
   const { node } = path;
   const { id } = node;
-  if (!isObjectPattern(id)) return {};
-  // if (!t.isObjectPattern(id)) return {};
+  if (!t.isObjectPattern(id)) return {};
 
   // Find data property in destructured object and get alias name
   // EXAMPLE: const { data: dataAlias } = useQuery("Movie");
   const dataIdentifiers: IDataIdentifiers = {};
   for (const property of id.properties) {
-    if (isObjectProperty(property) && isIdentifier(property.key, { name: DATA_PROPERTY })) {
-      if (isIdentifier(property.value)) {
+    if (
+      t.isObjectProperty(property) &&
+      t.isIdentifier(property.key, propertyName ? { name: propertyName } : undefined)
+    ) {
+      if (t.isIdentifier(property.value)) {
         parseReferencePaths(path, property.value.name, querySelections, dataIdentifiers);
         dataIdentifiers[property.value.name] = querySelections;
       }
-      if (isObjectPattern(property.value)) {
+      if (t.isObjectPattern(property.value)) {
         parseNestedObjects(path, property.value.properties, querySelections, dataIdentifiers);
       }
     }
