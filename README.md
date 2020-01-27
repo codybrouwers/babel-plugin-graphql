@@ -27,7 +27,7 @@
   const { month } = year;
   ```
 
-- [ ] Handle nested destructuring outside of data property with a path:
+- [x] Handle nested destructuring outside of data property with a path:
   ```js
   const { data } = useQuery();
   const { director } = data;
