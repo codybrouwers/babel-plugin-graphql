@@ -11,13 +11,13 @@ describe("tests pass", () => {
       //   code: `
       //     function Movie() {
       //       const { data } = useQuery("GetMovie");
-      //       const { thing } = data;
-      //       const { month } = data.year;
+      //       const { day } = data.year;
+      //       const theYear = data.year;
       //       return (
       //         <div>
       //           <div>
-      //             <p>{thing}</p>
-      //             <p>{month}</p>
+      //             <p>{data.id}</p>
+      //             <p>{theYear}</p>
       //           </div>
       //         </div>
       //       );

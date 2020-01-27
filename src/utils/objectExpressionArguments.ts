@@ -12,17 +12,18 @@ import graphqlAST from "./graphqlAST";
 // == Exports ==============================================================
 
 export function objectExpressionArguments(argumentProperties: ObjectExpression["properties"]) {
-  return argumentProperties.reduce<ArgumentNode[]>((argumentsObject, property) => {
+  const argumentNodes: ArgumentNode[] = [];
+  for (const property of argumentProperties) {
     // TODO: Account for spread elements
-    if (property.type !== "ObjectProperty") return argumentsObject;
+    if (property.type !== "ObjectProperty") continue;
     // TODO: Throw warning for computed properties
-    if (property.computed) return argumentsObject;
-    if (property.key.type !== "Identifier") return argumentsObject;
+    if (property.computed) continue;
+    if (property.key.type !== "Identifier") continue;
 
     const value = jsValueToType(property.value);
-    if (!value) return argumentsObject;
+    if (!value) continue;
 
-    argumentsObject.push(graphqlAST.newArgumentNode(property.key.name, value));
-    return argumentsObject;
-  }, []);
+    argumentNodes.push(graphqlAST.newArgumentNode(property.key.name, value));
+  }
+  return argumentNodes;
 }

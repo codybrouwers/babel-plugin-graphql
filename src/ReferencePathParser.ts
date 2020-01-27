@@ -1,4 +1,4 @@
-import { MemberExpression, Node, CallExpression, VariableDeclarator } from "@babel/types";
+import { MemberExpression, Node, CallExpression } from "@babel/types";
 import { Kind, FieldNode } from "graphql";
 import { NodePath } from "@babel/core";
 import { graphqlAST, callExpressionArguments } from "./utils";
@@ -60,13 +60,6 @@ function getParentPropertyName(node: TParsableNodeTypes): string | null {
       default:
         return null;
     }
-  } else if (node.type === "VariableDeclarator") {
-    switch (node.init?.type) {
-      case "Identifier":
-        return node.init.name;
-      default:
-        return null;
-    }
   } else if (node.type === "CallExpression" && node.callee.type === "Identifier") {
     return node.callee.name;
   }
@@ -95,40 +88,39 @@ function addFieldNodeForPathNode(
 
 function nodeName(node: TParsableNodeTypes) {
   if (node.type === "MemberExpression") return node.property.name;
-  if (node.type === "VariableDeclarator" && node.init?.type === "Identifier") return node.init.name;
   if (node.type === "CallExpression" && node.callee.type === "Identifier") return node.callee.name;
   return null;
 }
 
 // == Exports ==============================================================
 
-export class GraphQLPathParser {
+export class ReferencePathParser {
   static canParse(path: NodePath<Node>): path is NodePath<TParsableNodeTypes> {
     return path.isMemberExpression() || path.isCallExpression();
   }
 
   path: NodePath<Node>;
 
-  queryFieldNode: $Writeable<FieldNode>;
+  fieldNode: $Writeable<FieldNode>;
 
   dataIdentifier: string;
 
   parentFieldNode?: $Writeable<FieldNode>;
 
-  constructor(path: NodePath<Node>, queryFieldNode: FieldNode, dataIdentifier: string) {
+  constructor(path: NodePath<Node>, fieldNode: FieldNode, dataIdentifier: string) {
     this.path = path;
-    this.queryFieldNode = queryFieldNode;
+    this.fieldNode = fieldNode;
     this.dataIdentifier = dataIdentifier;
   }
 
-  addNodes() {
+  parse() {
     const ancestors = this.path.getAncestry();
     for (const ancestorPath of ancestors.slice(1)) {
       if (ancestorPath.shouldSkip) continue;
-      if (!GraphQLPathParser.canParse(ancestorPath)) continue;
+      if (!ReferencePathParser.canParse(ancestorPath)) continue;
 
       if (this.dataIdentifier === getParentPropertyName(ancestorPath.node)) {
-        this.parentFieldNode = addFieldNodeForPathNode(ancestorPath, this.queryFieldNode);
+        this.parentFieldNode = addFieldNodeForPathNode(ancestorPath, this.fieldNode);
       } else {
         if (!this.parentFieldNode) return;
         this.parentFieldNode = addFieldNodeForPathNode(ancestorPath, this.parentFieldNode);
