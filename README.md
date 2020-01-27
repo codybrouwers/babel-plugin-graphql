@@ -1,11 +1,13 @@
 ## TODO
 
-### Arguments
+### High Priority
+
+#### Arguments
 
 - [x] Remove arguments and directives after adding to graphql AST
 - [x] Create alias for each field that has an argument so that you can use the same field with different arguments multiple times
 
-### Field parsing
+#### Field parsing
 
 - [x] Handle nested destructuring of data property:
   ```js
@@ -32,15 +34,23 @@
   const { month, day } = director.year;
   ```
 
-### Arrays
+#### Arrays
 
 - [ ] Handle array functions like `.map`, `.forEeach`, `.reduce`
 - [ ] Look into tracking fields within array functions
 
-### Fragments
+### Medium Priority
+
+#### Fragments
 
 - [ ] Setup `useFragment`
 - [ ] For every `useQuery`, look at child components and add their fragments to the query.
+
+### Low Priority
+
+#### Directives
+
+- [ ] Directive arguments
 
 ### Query Examples
 
