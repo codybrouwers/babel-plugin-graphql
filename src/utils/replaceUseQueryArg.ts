@@ -1,4 +1,4 @@
-import babelTypes, { VariableDeclarator, throwStatement } from "@babel/types";
+import * as t from "@babel/types";
 import { NodePath } from "@babel/traverse";
 import { USE_QUERY } from "../constants/index";
 
@@ -17,11 +17,7 @@ import { USE_QUERY } from "../constants/index";
  * ↓ ↓ ↓ ↓ ↓ ↓
  * useQuery(MY_COMPONENT_GETMOVIEQUERY)
  */
-export function replaceUseQueryArg(
-  t: typeof babelTypes,
-  path: NodePath<VariableDeclarator>,
-  queryName: string
-) {
+export function replaceUseQueryArg(path: NodePath<t.VariableDeclarator>, queryName: string) {
   const useQueryCallExpressionPath = path.get("init");
   if (
     !t.isCallExpression(useQueryCallExpressionPath) ||

@@ -1,9 +1,9 @@
 declare module "babel-plugin-tester" {
   import { PluginObj } from "@babel/core";
-  import babelTypes from "@babel/types";
+  import * as t from "@babel/types";
 
   interface IOptions {
-    plugin: (options: { types: typeof babelTypes }) => PluginObj;
+    plugin: (options: { types: typeof t }) => PluginObj;
     fixtures?: string;
     tests?: {
       code: string;

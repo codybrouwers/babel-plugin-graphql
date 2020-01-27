@@ -1,4 +1,4 @@
-import babelTypes, { Node } from "@babel/types";
+import * as t from "@babel/types";
 import {
   ValueNode,
   coerceInputValue,
@@ -19,7 +19,7 @@ import {
 /**
  * @todo Handle more types
  */
-export function jsValueToType(value: Node): ValueNode | null {
+export function jsValueToType(value: t.Node): ValueNode | null {
   switch (value.type) {
     case "StringLiteral":
       return {

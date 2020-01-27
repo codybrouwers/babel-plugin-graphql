@@ -1,9 +1,9 @@
-export { isUseQuery } from "./isUseQuery";
-export { getQueryName } from "./getQueryName";
-export { getDataIdentifiers } from "./getDataIdentifiers";
-export { getQueryType } from "./getQueryType";
-export { jsValueToType } from "./jsValueToType";
+export * from "./isUseQuery";
+export * from "./getQueryName";
+export * from "./getDataIdentifiers";
+export * from "./getQueryType";
+export * from "./jsValueToType";
 export { default as graphqlAST } from "./graphqlAST";
-export { objectExpressionArguments } from "./objectExpressionArguments";
-export { callExpressionArguments } from "./callExpressionArguments";
-export { replaceUseQueryArg } from "./replaceUseQueryArg";
+export * from "./objectExpressionArguments";
+export * from "./callExpressionArguments";
+export * from "./replaceUseQueryArg";

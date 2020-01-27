@@ -3,7 +3,7 @@
  * - Look at only aliasing fields if there are more then one of the same field with different arguments
  */
 
-import { CallExpression } from "@babel/types";
+import * as t from "@babel/types";
 import { ArgumentNode, DirectiveNode } from "graphql";
 import { NodePath } from "@babel/core";
 import { objectExpressionArguments } from "./objectExpressionArguments";
@@ -18,7 +18,7 @@ const DIRECTIVE_REGEX = /^@([a-z_]+)$/i;
 // == Functions ============================================================
 
 // Remove arguments and directives call expression
-function replaceWithUIDIdentifier(path: NodePath<CallExpression>): string | undefined {
+function replaceWithUIDIdentifier(path: NodePath<t.CallExpression>): string | undefined {
   switch (path.node.callee.type) {
     case "MemberExpression": {
       const { name } = path.node.callee.property;
@@ -45,7 +45,7 @@ function replaceWithUIDIdentifier(path: NodePath<CallExpression>): string | unde
 
 // == Exports ==============================================================
 
-export function callExpressionArguments(path: NodePath<CallExpression>): INewFieldNodeOptions {
+export function callExpressionArguments(path: NodePath<t.CallExpression>): INewFieldNodeOptions {
   const { node } = path;
   if (node.type !== "CallExpression") return {};
 

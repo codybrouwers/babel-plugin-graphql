@@ -12,6 +12,7 @@ import {
   replaceUseQueryArg,
 } from "./utils";
 import { DataIdentifierParser } from "./DataIdentifierParser";
+import { USER_QUERY_DATA_PROPERTY } from "./constants";
 
 export default function({ types: t }: { types: typeof babelTypes }): PluginObj {
   return {
@@ -19,13 +20,13 @@ export default function({ types: t }: { types: typeof babelTypes }): PluginObj {
     inherits: jsx,
     visitor: {
       VariableDeclarator: (path) => {
-        if (!isUseQuery(t, path.node)) return;
+        if (!isUseQuery(path.node)) return;
 
         const functionParentPath = path.getFunctionParent();
         const queryType = getQueryType(path);
         const queryName = getQueryName(functionParentPath, queryType);
         const querySelections = graphqlAST.newFieldNode(queryType);
-        const dataIdentifiers = getDataIdentifiers(path, querySelections);
+        const dataIdentifiers = getDataIdentifiers(path, querySelections, USER_QUERY_DATA_PROPERTY);
 
         // TODO: Better error messaging for when these aren't present
         if (Object.keys(dataIdentifiers).length === 0 || !queryName || !queryType) return;
@@ -51,7 +52,7 @@ export default function({ types: t }: { types: typeof babelTypes }): PluginObj {
           t.variableDeclarator(queryNameConstant, templateExpression),
         ]);
 
-        replaceUseQueryArg(t, path, queryNameConstant.name);
+        replaceUseQueryArg(path, queryNameConstant.name);
         functionParentPath.insertBefore(queryDeclaration);
       },
     },

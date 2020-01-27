@@ -1,4 +1,4 @@
-import { ObjectExpression } from "@babel/types";
+import * as t from "@babel/types";
 import { ArgumentNode } from "graphql";
 import { jsValueToType } from "./jsValueToType";
 import graphqlAST from "./graphqlAST";
@@ -11,7 +11,7 @@ import graphqlAST from "./graphqlAST";
 
 // == Exports ==============================================================
 
-export function objectExpressionArguments(argumentProperties: ObjectExpression["properties"]) {
+export function objectExpressionArguments(argumentProperties: t.ObjectExpression["properties"]) {
   const argumentNodes: ArgumentNode[] = [];
   for (const property of argumentProperties) {
     // TODO: Account for spread elements
