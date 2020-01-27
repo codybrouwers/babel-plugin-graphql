@@ -27,7 +27,6 @@ export class DataIdentifierParser {
   parse() {
     for (const referencePath of this.referencePaths()) {
       if (!referencePath.isIdentifier()) continue;
-      if (!ReferencePathParser.canParse(referencePath.parentPath)) continue;
 
       new ReferencePathParser(referencePath, this.fieldNode, this.dataIdentifier).parse();
     }
