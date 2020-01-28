@@ -124,7 +124,7 @@ export class ReferencePathParser {
     for (const ancestorPath of ancestors) {
       if (ancestorPath.shouldSkip) continue;
       if (!ReferencePathParser.canParse(ancestorPath)) continue;
-      debugger;
+
       if (
         this.dataIdentifier === getPropertyName(ancestorPath.node) &&
         this.fieldNode.name.value !== this.dataIdentifier
