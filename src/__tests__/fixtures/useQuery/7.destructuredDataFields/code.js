@@ -8,8 +8,6 @@ function Movie() {
     month: { aNestedField },
   } = year;
 
-  const actorName = actor.name;
-
   return (
     <div>
       <div>
@@ -19,7 +17,6 @@ function Movie() {
         <p>{month}</p>
         <p>{aNestedField.evenMoreNested}</p>
         <p>{actor.name}</p>
-        <p>{actorName}</p>
         <p>{actor.birthDate("@preload")}</p>
       </div>
     </div>
