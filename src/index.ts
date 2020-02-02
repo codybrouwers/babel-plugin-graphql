@@ -5,14 +5,13 @@ import babelTypes from "@babel/types";
 import { print } from "graphql";
 import {
   isUseQuery,
-  getDataIdentifiers,
   getQueryName,
   getQueryType,
-  graphqlAST,
+  newGraphQLFieldNode,
+  newGraphQLDocumentNode,
   replaceUseQueryArg,
 } from "./utils";
-import { DataIdentifierParser } from "./DataIdentifierParser";
-import { USER_QUERY_DATA_PROPERTY } from "./constants";
+import { Parser } from "./Parser";
 
 export default function({ types: t }: { types: typeof babelTypes }): PluginObj {
   return {
@@ -25,18 +24,15 @@ export default function({ types: t }: { types: typeof babelTypes }): PluginObj {
         const functionParentPath = path.getFunctionParent();
         const queryType = getQueryType(path);
         const queryName = getQueryName(functionParentPath, queryType);
-        const querySelections = graphqlAST.newFieldNode(queryType);
-        const dataIdentifiers = getDataIdentifiers(path, querySelections, USER_QUERY_DATA_PROPERTY);
+        const querySelections = newGraphQLFieldNode(queryType);
 
         // TODO: Better error messaging for when these aren't present
-        if (Object.keys(dataIdentifiers).length === 0 || !queryName || !queryType) return;
+        if (!queryName || !queryType) return;
 
-        for (const [identifier, fieldNode] of Object.entries(dataIdentifiers)) {
-          new DataIdentifierParser(path, fieldNode, identifier).parse();
-        }
+        new Parser(path, querySelections, "USE_QUERY").parse();
 
         // GraphQL AST is done
-        const documentNode = graphqlAST.newDocumentNode(queryName, [querySelections]);
+        const documentNode = newGraphQLDocumentNode(queryName, [querySelections]);
         const printedQuery = print(documentNode);
 
         const templateExpression = t.taggedTemplateExpression(

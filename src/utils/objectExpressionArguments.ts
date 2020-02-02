@@ -1,7 +1,7 @@
 import * as t from "@babel/types";
 import { ArgumentNode } from "graphql";
 import { jsValueToType } from "./jsValueToType";
-import graphqlAST from "./graphqlAST";
+import { newGraphQLArgumentNode } from "./graphqlASTBuilders";
 
 // == Types ================================================================
 
@@ -23,7 +23,7 @@ export function objectExpressionArguments(argumentProperties: t.ObjectExpression
     const value = jsValueToType(property.value);
     if (!value) continue;
 
-    argumentNodes.push(graphqlAST.newArgumentNode(property.key.name, value));
+    argumentNodes.push(newGraphQLArgumentNode(property.key.name, value));
   }
   return argumentNodes;
 }

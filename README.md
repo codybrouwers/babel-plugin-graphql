@@ -1,3 +1,13 @@
+#### Parsing Steps
+
+1. Find the useQuery VariableDeclarator/s
+2. Get useQuery's data property, aliased data property, or destructured data fields as dataIdentifiers
+3. For each found dataIdentifier, find their reference paths.
+4. For each reference path, call getAncestry and check the first ancestor (the actual reference path), and check if its parentPath is a VariableDeclarator.
+5. If it is a VariableDeclarator, create more dataIdentifiers for the id value.
+6. Repeat step 3-6 for these new dataIdentifiers.
+7. Continue with ancestors for reference path from step 4
+
 ## TODO
 
 ### High Priority
@@ -36,7 +46,7 @@
 
 #### Arrays
 
-- [ ] Handle array functions like `.map`, `.forEeach`, `.reduce`
+- [ ] Handle array functions like `.map`, `.forEach`, `.reduce`
 - [ ] Look into tracking fields within array functions
 
 ### Medium Priority
@@ -51,6 +61,7 @@
 #### Directives
 
 - [ ] Directive arguments
+- [ ] Only alias fields with directives or arguments if the same field is referenced more than once
 
 ### Query Examples
 

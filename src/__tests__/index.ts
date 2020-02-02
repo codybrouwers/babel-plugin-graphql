@@ -10,12 +10,12 @@ describe("tests pass", () => {
       {
         code: `
           function Movie() {
-            const { data: { actor } } = useQuery("GetMovie");
+            const { data } = useQuery("GetMovie");
 
             return (
               <div>
                 <div>
-                  <p>{actor.name}</p>
+                  {data.movies.id("@preload")}
                 </div>
               </div>
             );
@@ -25,22 +25,18 @@ describe("tests pass", () => {
           const _MOVIE__GETMOVIEQUERY = gql\`
             query Movie__GetMovieQuery {
               GetMovie {
-                actor {
-                  name
+                movies {
+                  _id: id @preload
                 }
               }
             }
           \`;
 
           function Movie() {
-            const {
-              data: { actor },
-            } = useQuery(_MOVIE__GETMOVIEQUERY);
+            const { data } = useQuery(_MOVIE__GETMOVIEQUERY);
             return (
               <div>
-                <div>
-                  <p>{actor.name}</p>
-                </div>
+                <div>{data.movies._id}</div>
               </div>
             );
           }

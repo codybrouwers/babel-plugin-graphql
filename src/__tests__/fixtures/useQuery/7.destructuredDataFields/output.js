@@ -8,12 +8,12 @@ const _MOVIE__GETMOVIEQUERY = gql`
         _birthDate: birthDate @preload
       }
       year {
+        day
         month {
           aNestedField {
             evenMoreNested
           }
         }
-        day
       }
     }
   }

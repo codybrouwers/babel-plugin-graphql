@@ -21,7 +21,9 @@ export interface INewFieldNodeOptions {
 
 // == Functions ============================================================
 
-function newFieldNode(
+// == Exports ==============================================================
+
+export function newGraphQLFieldNode(
   name: string,
   {
     aliasName = undefined,
@@ -43,7 +45,7 @@ function newFieldNode(
   };
 }
 
-function newArgumentNode(name: string, value: ValueNode): ArgumentNode {
+export function newGraphQLArgumentNode(name: string, value: ValueNode): ArgumentNode {
   return {
     kind: Kind.ARGUMENT,
     name: {
@@ -57,7 +59,7 @@ function newArgumentNode(name: string, value: ValueNode): ArgumentNode {
 /**
  * @todo Directive arguments
  */
-function newDirectiveNode(name: string): DirectiveNode {
+export function newGraphQLDirectiveNode(name: string): DirectiveNode {
   return {
     kind: Kind.DIRECTIVE,
     name: { kind: Kind.NAME, value: name },
@@ -65,7 +67,7 @@ function newDirectiveNode(name: string): DirectiveNode {
   };
 }
 
-function newSelectionSet(selections: FieldNode[] = []) {
+export function newGraphQLSelectionSet(selections: FieldNode[] = []) {
   return { kind: Kind.SELECTION_SET, selections };
 }
 
@@ -73,7 +75,10 @@ function newSelectionSet(selections: FieldNode[] = []) {
  *
  * @todo VariableDefinitions & directives
  */
-function newDocumentNode(queryName: string, querySelections: SelectionNode[]): DocumentNode {
+export function newGraphQLDocumentNode(
+  queryName: string,
+  querySelections: SelectionNode[]
+): DocumentNode {
   return {
     kind: Kind.DOCUMENT,
     definitions: [
@@ -94,13 +99,3 @@ function newDocumentNode(queryName: string, querySelections: SelectionNode[]): D
     ],
   };
 }
-
-// == Exports ==============================================================
-
-export default {
-  newFieldNode,
-  newArgumentNode,
-  newDirectiveNode,
-  newSelectionSet,
-  newDocumentNode,
-};

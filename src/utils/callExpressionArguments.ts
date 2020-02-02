@@ -7,7 +7,7 @@ import * as t from "@babel/types";
 import { ArgumentNode, DirectiveNode } from "graphql";
 import { NodePath } from "@babel/core";
 import { objectExpressionArguments } from "./objectExpressionArguments";
-import graphqlAST, { INewFieldNodeOptions } from "./graphqlAST";
+import { newGraphQLDirectiveNode, INewFieldNodeOptions } from "./graphqlASTBuilders";
 
 // == Types ================================================================
 
@@ -65,7 +65,7 @@ export function callExpressionArguments(path: NodePath<t.CallExpression>): INewF
             `Directives must be prefixed with '@' and match against this regular expression ${DIRECTIVE_REGEX}`
           );
         }
-        directiveNodes.push(graphqlAST.newDirectiveNode(value[1]));
+        directiveNodes.push(newGraphQLDirectiveNode(value[1]));
         break;
       }
       default:

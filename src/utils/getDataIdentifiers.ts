@@ -1,7 +1,7 @@
 import * as t from "@babel/types";
 import { NodePath } from "@babel/core";
 import { Kind, FieldNode } from "graphql";
-import graphqlAST from "./graphqlAST";
+import { newGraphQLFieldNode, newGraphQLSelectionSet } from "./graphqlASTBuilders";
 
 // == Types ================================================================
 
@@ -33,21 +33,15 @@ function parseNestedObjects(
     if (property.shorthand && t.isIdentifier(property.value)) {
       const propertyName = property.value.name;
       const existingFieldNodes = filterFieldNodesWithoutProperty(querySelections, propertyName);
-      const newFieldNode = graphqlAST.newFieldNode(propertyName);
-      querySelections.selectionSet = graphqlAST.newSelectionSet([
-        ...existingFieldNodes,
-        newFieldNode,
-      ]);
+      const newFieldNode = newGraphQLFieldNode(propertyName);
+      querySelections.selectionSet = newGraphQLSelectionSet([...existingFieldNodes, newFieldNode]);
       dataIdentifiers[propertyName] = newFieldNode;
       parseReferencePaths(path, propertyName, newFieldNode, dataIdentifiers);
     } else if (t.isObjectPattern(property.value) && t.isIdentifier(property.key)) {
       const propertyName = property.key.name;
       const existingFieldNodes = filterFieldNodesWithoutProperty(querySelections, propertyName);
-      const newFieldNode = graphqlAST.newFieldNode(propertyName);
-      querySelections.selectionSet = graphqlAST.newSelectionSet([
-        ...existingFieldNodes,
-        newFieldNode,
-      ]);
+      const newFieldNode = newGraphQLFieldNode(propertyName);
+      querySelections.selectionSet = newGraphQLSelectionSet([...existingFieldNodes, newFieldNode]);
       parseNestedObjects(path, property.value.properties, newFieldNode, dataIdentifiers);
     }
   }
