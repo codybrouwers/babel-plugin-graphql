@@ -10,39 +10,22 @@ import {
 
 // == Types ================================================================
 
-export interface INewFieldNodeOptions {
-  aliasName?: string;
-  selectionNodes?: SelectionNode[];
-  argumentNodes?: ArgumentNode[];
-  directiveNodes?: DirectiveNode[];
-}
-
 // == Constants ============================================================
 
 // == Functions ============================================================
 
 // == Exports ==============================================================
 
-export function newGraphQLFieldNode(
-  name: string,
-  {
-    aliasName = undefined,
-    selectionNodes = [],
-    argumentNodes = [],
-    directiveNodes = [],
-  }: INewFieldNodeOptions = {}
-): FieldNode {
+export function newGraphQLFieldNode(name: string, aliasName?: string): FieldNode {
   return {
     kind: Kind.FIELD,
     name: { kind: Kind.NAME, value: name },
     alias: aliasName ? { kind: Kind.NAME, value: aliasName } : undefined,
-    selectionSet: {
-      kind: Kind.SELECTION_SET,
-      selections: selectionNodes,
-    },
-    arguments: argumentNodes,
-    directives: directiveNodes,
   };
+}
+
+export function newGraphQLAliasNode(name: string) {
+  return { kind: Kind.NAME, value: name };
 }
 
 export function newGraphQLArgumentNode(name: string, value: ValueNode): ArgumentNode {

@@ -5,7 +5,7 @@ const _MOVIE__GETMOVIEQUERY = gql`
       name
       actor {
         name
-        _birthDate: birthDate @preload
+        birthDate @preload
       }
       year {
         date {
@@ -34,7 +34,7 @@ function Movie() {
         <p>{name}</p>
         <p>{day}</p>
         <p>{actor.name}</p>
-        <p>{actor._birthDate}</p>
+        <p>{actor.birthDate}</p>
       </div>
     </div>
   );

@@ -1,10 +1,11 @@
 import * as t from "@babel/types";
-import { FieldNode, Kind } from "graphql";
+import { FieldNode } from "graphql";
 import { NodePath } from "@babel/core";
 import {
   addFieldNodeForPathNode,
   canParsePath,
   callExpressionArguments,
+  mergeArgumentNodesIntoFieldNode,
   TParsableNodeTypes,
 } from "./utils";
 import { DataIdentifiersParser } from "./DataIdentifiersParser";
@@ -49,6 +50,8 @@ export class ReferencePathParser {
         this.parseCallExpression(ancestorPath);
       } else if (canParsePath(ancestorPath)) {
         this.parseParsableNodes(ancestorPath);
+      } else {
+        break;
       }
     }
   }
@@ -67,11 +70,6 @@ export class ReferencePathParser {
     }
   }
 
-  private parseCallExpression(ancestorPath: NodePath<t.CallExpression>) {
-    const options = callExpressionArguments(ancestorPath);
-    mergeCallExpressionArguments(this.fieldNode, options);
-  }
-
   private parseParsableNodes(ancestorPath: NodePath<TParsableNodeTypes>) {
     if (ancestorPath.isIdentifier() && this.fieldNode.name.value === ancestorPath.node.name) {
       return;
@@ -79,17 +77,18 @@ export class ReferencePathParser {
 
     this.fieldNode = addFieldNodeForPathNode(ancestorPath, this.fieldNode);
   }
-}
 
-function mergeCallExpressionArguments(
-  fieldNode: $Writeable<FieldNode>,
-  {
-    argumentNodes = [],
-    directiveNodes = [],
-    aliasName,
-  }: ReturnType<typeof callExpressionArguments> = {}
-) {
-  fieldNode.arguments = [...(fieldNode.arguments || []), ...argumentNodes];
-  fieldNode.directives = [...(fieldNode.directives || []), ...directiveNodes];
-  if (aliasName) fieldNode.alias = { kind: Kind.NAME, value: aliasName };
+  private parseCallExpression(ancestorPath: NodePath<t.CallExpression>) {
+    const options = callExpressionArguments(ancestorPath);
+    const newIdentifier = t.identifier(this.fieldNode.alias?.value || this.fieldNode.name.value);
+
+    if (ancestorPath.node.callee.type === "MemberExpression") {
+      ancestorPath.node.callee.property = newIdentifier;
+    } else if (ancestorPath.node.callee.type === "Identifier") {
+      ancestorPath.node.callee = newIdentifier;
+    }
+    ancestorPath.replaceWith(ancestorPath.node.callee);
+    ancestorPath.skip();
+    mergeArgumentNodesIntoFieldNode(this.fieldNode, options.argumentNodes, options.directiveNodes);
+  }
 }

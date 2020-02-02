@@ -6,8 +6,8 @@ const _MOVIE__GETMOVIEQUERY = gql`
       year
       director {
         id
-        _name: name(firstOnly: true)
-        _age: age(format: "number")
+        name(firstOnly: true)
+        age(format: "number")
         company {
           id
           name
@@ -26,8 +26,8 @@ function Movie() {
         <p>{data.name}</p>
         <p>{data.year}</p>
         <p>{data.director.id}</p>
-        <p>{data.director._name}</p>
-        <p>{data.director._age}</p>
+        <p>{data.director.name}</p>
+        <p>{data.director.age}</p>
         <p>{data.director.company.id}</p>
         <p>{data.director.company.name}</p>
       </div>

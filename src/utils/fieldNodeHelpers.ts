@@ -1,7 +1,8 @@
 import * as t from "@babel/types";
-import { Kind, FieldNode } from "graphql";
+import { Kind, FieldNode, ArgumentNode, DirectiveNode } from "graphql";
 import { NodePath } from "@babel/core";
 import { newGraphQLFieldNode, newGraphQLSelectionSet } from "./graphqlASTBuilders";
+import { replaceNodeWithUIDIdentifier } from "./callExpressionArguments";
 
 // == Types ================================================================
 
@@ -44,8 +45,20 @@ export function addFieldNodeForPathNode(
   const propertyName = getPropertyName(node);
   if (!propertyName) return fieldNode;
 
-  const propertyFieldNode = findOrCreateFieldNode(fieldNode, propertyName);
-  const existingFieldNodes = filterFieldNodesWithoutProperty(fieldNode, propertyName);
+  const existingFieldNode = findFieldNode(fieldNode, propertyName);
+  let propertyFieldNode;
+  if (existingFieldNode && path.parentPath.isCallExpression()) {
+    const aliasName = replaceNodeWithUIDIdentifier(path.parentPath);
+    propertyFieldNode = newGraphQLFieldNode(propertyName, aliasName);
+  } else if (existingFieldNode) {
+    propertyFieldNode = existingFieldNode;
+  } else {
+    propertyFieldNode = findOrCreateFieldNode(fieldNode, propertyName);
+  }
+  const existingFieldNodes = filterFieldNodesWithoutProperty(
+    fieldNode,
+    propertyFieldNode.alias?.value || propertyName
+  );
   fieldNode.selectionSet = newGraphQLSelectionSet([...existingFieldNodes, propertyFieldNode]);
   return propertyFieldNode;
 }
@@ -76,4 +89,13 @@ export function getPropertyName(node: TParsableNodeTypes): string | null {
     default:
       return null;
   }
+}
+
+export function mergeArgumentNodesIntoFieldNode(
+  fieldNode: $Writeable<FieldNode>,
+  argumentNodes: ArgumentNode[] = [],
+  directiveNodes: DirectiveNode[] = []
+) {
+  fieldNode.arguments = [...(fieldNode.arguments || []), ...argumentNodes];
+  fieldNode.directives = [...(fieldNode.directives || []), ...directiveNodes];
 }

@@ -61,7 +61,7 @@
 #### Directives
 
 - [ ] Directive arguments
-- [ ] Only alias fields with directives or arguments if the same field is referenced more than once
+- [x] Only alias fields with directives or arguments if the same field is referenced more than once
 
 ### Query Examples
 
